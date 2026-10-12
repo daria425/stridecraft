@@ -1,0 +1,86 @@
+import json
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from urllib.parse import urlencode
+
+import httpx
+
+from stridecraft.config import StravaConfig
+
+AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
+TOKEN_URL = "https://www.strava.com/oauth/token"
+REDIRECT_URI = "http://localhost"
+SCOPE = "activity:read_all"
+EXPIRY_MARGIN_S = 60
+
+
+@dataclass
+class Tokens:
+    access_token: str
+    refresh_token: str
+    expires_at: int
+
+    def is_expired(self) -> bool:
+        return self.expires_at - EXPIRY_MARGIN_S <= time.time()
+
+
+class TokenStore:
+    def __init__(self, path: Path):
+        self.path = path
+
+    def load(self) -> Tokens | None:
+        if not self.path.exists():
+            return None
+        return Tokens(**json.loads(self.path.read_text()))
+
+    def save(self, tokens: Tokens) -> None:
+        self.path.write_text(json.dumps(asdict(tokens)))
+
+
+class StravaAuth:
+    def __init__(self, config: StravaConfig, store: TokenStore, http: httpx.Client | None = None):
+        self.config = config
+        self.store = store
+        self.http = http or httpx.Client()
+
+    def authorize_url(self) -> str:
+        query = urlencode(
+            {
+                "client_id": self.config.client_id,
+                "redirect_uri": REDIRECT_URI,
+                "response_type": "code",
+                "approval_prompt": "auto",
+                "scope": SCOPE,
+            }
+        )
+        return f"{AUTHORIZE_URL}?{query}"
+
+    def exchange_code(self, code: str) -> Tokens:
+        return self.request_tokens({"grant_type": "authorization_code", "code": code})
+
+    def valid_access_token(self) -> str:
+        tokens = self.store.load()
+        if tokens is None:
+            raise RuntimeError("Not authorized yet - run `fetch_runs.py` and follow the prompt")
+        if tokens.is_expired():
+            tokens = self.request_tokens(
+                {"grant_type": "refresh_token", "refresh_token": tokens.refresh_token}
+            )
+        return tokens.access_token
+
+    def request_tokens(self, grant: dict) -> Tokens:
+        response = self.http.post(
+            TOKEN_URL,
+            data={
+                "client_id": self.config.client_id,
+                "client_secret": self.config.client_secret,
+                **grant,
+            },
+        )
+        response.raise_for_status()
+        body = response.json()
+        # Strava may rotate the refresh token, so always persist the latest pair.
+        tokens = Tokens(body["access_token"], body["refresh_token"], body["expires_at"])
+        self.store.save(tokens)
+        return tokens

@@ -14,22 +14,23 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 - Pick one fighter ("pal") once at the start from a **pre-generated set (~4-6) of AI-generated designs**, shipped as static assets. Outfits are pre-made variants.
 - All fighters start with **identical stats**; the difference is looks only. Training makes them diverge (fast, enduring, hilly...).
 - **No character level / XP.**
+- **The pal is not you** (Pokemon/Palworld principle): a caught pal has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the pal's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). Needs a `created_at` on the user once persistence exists.
+- **Effortless UX:** the user just runs and logs in Strava; the app asks for no extra logging.
 
 ### Stats
 
 - Four stats: **Speed, Endurance, Hills, Consistency**.
-- **Endurance, Hills and Consistency** are a **rolling window of real recent performance** (~6 weeks, tune later), so they decay naturally if you stop training. Revisit a hybrid (points capped by performance) if stats feel flat in practice.
+- **Endurance, Hills and Consistency** are a **rolling window of recent performance** (~6 weeks, tune later) counted from runs after sign-up only, so they can fall back if you stop training. Revisit a hybrid (points capped by performance) if stats feel flat in practice. Exact base values, how the window combines with the pal's base, and decay are still open.
 - **Speed is different** (journal/0002): a **running total that never decays**, starting at 10. Every run adds a small base amount (~0.002), plus a pace bonus when its average pace beats the average pace of the previous 6 weeks; training-flagged runs get an additional bonus. Grinding is accepted. No best efforts or splits are needed for Speed.
 - **PBs** are whatever Strava reports as `pr_rank` on `best_efforts` (journal/0001, 0002); treadmill runs have none, which is accepted.
 - **Endurance:** weekly km + longest run. **Hills:** weekly elevation gain (per km). **Consistency:** runs per week held over the window. Each normalised to a 0-100 scale against the user's own history (revisit fixed benchmarks if that proves confusing).
 - Exact formulas are decided per-phase; keep the maths simple and unit-tested.
 
-### Training-run toggle
+### Training runs
 
-- Every run has a **"training run"** toggle (UI text explains: turn on for any non-easy/recovery run).
-- **Default OFF.** Pre-fill ON when Strava tags the run Race or Workout; user can override.
-- **ON:** gets an **additional Speed bonus** on top of the base add and pace bonus every run gets (size TBD), and counts toward the other stats.
-- **OFF (easy run):** still adds to Speed (base add, plus the pace bonus if it was faster than the 6-week average) and feeds **Endurance and Consistency**. Speed never decays, so easy runs can't hurt the character (70-80% of runs should be easy).
+- A run is a **training run** only if Strava tags it Race or Workout. **No in-app toggle or override**: if the user forgot to tag it in Strava, that's on them (every run still adds to Speed, so nothing is lost).
+- **Training run:** gets an **additional Speed bonus** on top of the base add and pace bonus every run gets (size TBD), and counts toward the other stats.
+- **Any other run (easy):** still adds to Speed (base add, plus the pace bonus if it was faster than the 6-week average) and feeds **Endurance and Consistency**. Speed never decays, so easy runs can't hurt the character (70-80% of runs should be easy).
 
 ### Permanent progression (never decays)
 

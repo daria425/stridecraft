@@ -30,9 +30,9 @@ def test_missing_optional_fields_do_not_crash():
     assert run.elevation_gain_m == 0.0
 
 
-def test_training_default_prefilled_for_race_and_workout_only():
+def test_is_training_only_for_race_and_workout():
     flags = {
-        wt: Run.from_strava({**BASE, "workout_type": wt}, 7).training_default for wt in (0, 1, 2, 3)
+        wt: Run.from_strava({**BASE, "workout_type": wt}, 7).is_training for wt in (0, 1, 2, 3)
     }
     assert flags == {0: False, 1: True, 2: False, 3: True}
-    assert Run.from_strava(BASE, 7).training_default is False
+    assert Run.from_strava(BASE, 7).is_training is False

@@ -32,7 +32,7 @@ class Run:
     distance_m: float
     moving_time_s: int
     elevation_gain_m: float
-    training_default: bool
+    is_training: bool
     best_efforts: list[BestEffort] = field(default_factory=list)
 
     @classmethod
@@ -45,6 +45,6 @@ class Run:
             distance_m=payload["distance"],
             moving_time_s=payload["moving_time"],
             elevation_gain_m=payload.get("total_elevation_gain", 0.0),
-            training_default=payload.get("workout_type") in TRAINING_WORKOUT_TYPES,
+            is_training=payload.get("workout_type") in TRAINING_WORKOUT_TYPES,
             best_efforts=[BestEffort.from_strava(e) for e in payload.get("best_efforts") or []],
         )

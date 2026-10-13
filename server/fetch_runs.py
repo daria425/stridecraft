@@ -2,10 +2,12 @@
 
 import json
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 from stridecraft.config import STATS_WINDOW_DAYS, StravaConfig
 from stridecraft.models import Run
+from stridecraft.stats.stats_calculator import StatConverter
 from stridecraft.strava.auth import StravaAuth, TokenStore
 from stridecraft.strava.client import StravaClient
 
@@ -34,11 +36,20 @@ def print_run(run: Run) -> None:
     print(
         f"{run.start_time:%Y-%m-%d}  {run.distance_m / 1000:6.2f} km  "
         f"{int(pace // 60)}:{int(pace % 60):02d}/km  +{run.elevation_gain_m:4.0f} m  "
-        f"{'training' if run.training_default else 'easy    '}  PRs: {', '.join(prs) or '-'}"
+        f"{'training' if run.is_training else 'easy    '}  PRs: {', '.join(prs) or '-'}"
     )
 
 
-def main() -> None:
+def print_stats(runs: list[Run], signup_date: datetime) -> None:
+    stats = StatConverter().convert(runs, signup_date).stats
+    print(f"\nPal stats for runs since {signup_date:%Y-%m-%d} (base 10):")
+    print(f"  Speed {stats.speed:.3f}  Endurance {stats.endurance:.3f}")
+    print(f"  Hills {stats.hills:.3f}  Consistency {stats.consistency:.3f}")
+
+
+def main(signup_date: datetime | None = None) -> None:
+    """`signup_date` defaults to now, so no run counts yet; pass an earlier date to try stats."""
+    signup_date = signup_date or datetime.now(UTC)
     auth = StravaAuth(StravaConfig.from_env(), TokenStore(ROOT / "tokens.json"))
     ensure_authorized(auth)
     client = StravaClient(auth)
@@ -49,8 +60,10 @@ def main() -> None:
     dump_raw(details)
 
     user_id = client.athlete_id()
-    for detail in sorted(details, key=lambda d: d["start_date"]):
-        print_run(Run.from_strava(detail, user_id))
+    runs = [Run.from_strava(detail, user_id) for detail in details]
+    for run in sorted(runs, key=lambda r: r.start_time):
+        print_run(run)
+    print_stats(runs, signup_date)
 
 
 if __name__ == "__main__":

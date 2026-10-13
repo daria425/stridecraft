@@ -6,3 +6,5 @@
 | [0002](0002-speed-running-total.md) | Speed is a running total: base add plus pace bonus | accepted | 2026-10-12 |
 | [0003](0003-pal-grows-from-new-runs.md) | The pal grows only from post-sign-up runs; stats never decay | accepted | 2026-10-13 |
 | [0004](0004-tests-assert-relationships-not-constants.md) | Stat tests assert relationships, not tuned constants | accepted | 2026-10-13 |
+| [0005](0005-pal-adoption-is-the-signup-date.md) | Pal adoption is the sign-up date | accepted | 2026-10-13 |
+| [0006](0006-sqlite-frozen-gains-rebuild.md) | SQLite, SQLAlchemy, frozen gains; rebuild instead of migrations | accepted | 2026-10-13 |

@@ -14,7 +14,7 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 - Pick one fighter ("pal") once at the start from a **pre-generated set (~4-6) of AI-generated designs**, shipped as static assets. Outfits are pre-made variants.
 - All fighters start with **identical stats**; the difference is looks only. Training makes them diverge (fast, enduring, hilly...).
 - **No character level / XP.**
-- **The pal is not you** (Pokemon/Palworld principle): a caught pal has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the pal's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). Needs a `created_at` on the user once persistence exists.
+- **The pal is not you** (Pokemon/Palworld principle): a caught pal has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the pal's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). "Sign-up" is **pal adoption** (`adopted_at` on the pal, journal/0005), not the Strava login. Onboarding: no pal yet means redirect to fighter selection. Persistence (SQLite + SQLAlchemy, frozen per-run gains, wipe-and-rebuild instead of migrations, sync) is in journal/0006; the flow is in `docs/data-flow.md`.
 - **Effortless UX:** the user just runs and logs in Strava; the app asks for no extra logging.
 
 ### Stats

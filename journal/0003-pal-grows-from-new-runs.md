@@ -52,8 +52,9 @@ skills, not by penalising gaps.
 
 - Stats only grow, so they stop reflecting current form, and grinding is accepted.
 - Per-run contributions depend on earlier runs, so they should be stored when the run is first
-  processed. This needs persistence (a `created_at` on the user, and a stored contribution per
-  run).
+  processed. This needs persistence (a sign-up date and a stored contribution per run). The
+  sign-up date is `adopted_at` on the pal, not a `created_at` on the user (ADR-0005; storage in
+  ADR-0006).
 - Needs a per-run contribution rule for each of Endurance, Hills and Consistency, and the
   constants are not decided yet.
 - Supersedes the decay parts of CLAUDE.md; refines ADR-0002.

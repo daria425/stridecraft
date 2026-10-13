@@ -12,7 +12,8 @@ Plain-language reference for the maths. Decisions and reasoning live in `journal
   (the 6-week average pace and longest run).
 - **Every run counts toward every stat**, easy or not. A run tagged Race or Workout in Strava is a
   *training run*, which earns one extra thing: a Speed bonus. Nothing else differs.
-- Each run's additions are worked out once, when the run is first processed, then stored.
+- Each run's additions are worked out once, when the run is first processed, then stored (frozen;
+  see `docs/data-flow.md`).
 
 "Previous 6 weeks" always means the 42 days before that run's start time.
 

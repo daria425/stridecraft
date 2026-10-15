@@ -2,7 +2,7 @@
 
 Plain-language reference for the maths. Decisions and reasoning live in `journal/`
 (ADR-0002, ADR-0003); this file is the "what exactly happens" version, with examples.
-**All constants are first guesses**; tune them after seeing real numbers.
+**All constants are first guesses** (scaled x20 in ADR-0011); tune them after seeing real numbers.
 
 ## The big picture
 
@@ -23,9 +23,9 @@ A run adds up to three pieces:
 
 | Piece | Formula | Constant |
 |---|---|---|
-| Base add (every run) | flat `BASE_ADD` | 0.002 |
-| Pace bonus (only if faster than usual) | `PACE_K * max(0, run_speed / avg_speed - 1)` | `PACE_K` = 0.1 |
-| Training bonus (Race/Workout only) | flat `TRAINING_BONUS` | 0.004 |
+| Base add (every run) | flat `BASE_ADD` | 0.04 |
+| Pace bonus (only if faster than usual) | `PACE_K * max(0, run_speed / avg_speed - 1)` | `PACE_K` = 2.0 |
+| Training bonus (Race/Workout only) | flat `TRAINING_BONUS` | 0.08 |
 
 - `run_speed` = distance / moving time of this run.
 - `avg_speed` = total distance / total moving time of all runs in the previous 6 weeks.
@@ -38,33 +38,33 @@ Examples (6-week average pace is 5:30/km):
 
 | Run | Calculation | Speed added |
 |---|---|---|
-| Easy, 5:45/km | 0.002 + 0 | 0.002 |
-| Easy, about 5:00/km (10% faster) | 0.002 + 0.1 * 0.10 | 0.012 |
-| Tempo workout, about 5:00/km | 0.002 + 0.010 + 0.004 | 0.016 |
+| Easy, 5:45/km | 0.04 + 0 | 0.04 |
+| Easy, about 5:00/km (10% faster) | 0.04 + 2.0 * 0.10 | 0.24 |
+| Tempo workout, about 5:00/km | 0.04 + 0.20 + 0.08 | 0.32 |
 
 ## Endurance (base 10)
 
 | Piece | Formula | Constant |
 |---|---|---|
-| Distance | `KM_ADD * km` | `KM_ADD` = 0.001 |
-| Long-run bonus (only if it's your longest in 6 weeks) | `LONG_RUN_K * (km / longest_km - 1)` | `LONG_RUN_K` = 0.1 |
+| Distance | `KM_ADD * km` | `KM_ADD` = 0.02 |
+| Long-run bonus (only if it's your longest in 6 weeks) | `LONG_RUN_K * (km / longest_km - 1)` | `LONG_RUN_K` = 2.0 |
 
-`longest_km` is the longest run in the previous 6 weeks. A 10 km run gives 0.01. Running 12 km
-when your longest was 10 gives 0.012 + 0.1 * 0.2 = 0.032. No earlier runs means no long-run bonus.
+`longest_km` is the longest run in the previous 6 weeks. A 10 km run gives 0.2. Running 12 km
+when your longest was 10 gives 0.24 + 2.0 * 0.2 = 0.64. No earlier runs means no long-run bonus.
 
 ## Hills (base 10)
 
-`METRES_ADD * elevation_gain_m`, with `METRES_ADD` = 0.0001. 100 m of climbing gives 0.01.
+`METRES_ADD * elevation_gain_m`, with `METRES_ADD` = 0.002. 100 m of climbing gives 0.2.
 
 ## Consistency (base 10)
 
 - Count runs per calendar week (Monday to Sunday).
 - The moment a week reaches `WEEKLY_RUN_GOAL` runs (3), award `STREAK_ADD * streak`.
 - `streak` = number of consecutive weeks, including this one, that reached the goal, capped at
-  `MAX_STREAK` (10). `STREAK_ADD` = 0.01.
+  `MAX_STREAK` (10). `STREAK_ADD` = 0.2.
 - Missing a week resets the streak counter to 0 but the stat keeps what it had. Nothing is taken
   away.
-- Example: hit 3 runs in 4 weeks in a row, and the 4th week's goal run adds 0.04.
+- Example: hit 3 runs in 4 weeks in a row, and the 4th week's goal run adds 0.8.
 
 ## Not decided yet
 

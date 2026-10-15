@@ -79,3 +79,10 @@ This is a collaboration, not a hand-the-keys-over build. Specifically:
 - Stat constants (base add, `k` values etc.) are defined as ALL_CAPS names **inside the function that uses them**, not in `config.py`, with a comment at the top of the file explaining why (the author finds the maths hard to follow otherwise). Deliberate exception to the usual module-level convention.
 - Shared functions should be grouped (for example in a dedicated utils/ module, grouped by theme)
 - Expected failures are typed errors from `stridecraft/errors.py` with plain-English messages, never CLI hints (journal/0010); the CLI and later the API route catch `StridecraftError` at the top. The CLI is temporary: no tests for it.
+
+Current open items:
+
+- PBs and skills: best efforts are stored for the newest 50 runs, ready for the skills phase.
+- Base values: the strider's base values are still all 10, and breeds are looks only.
+- Next phases: FastAPI endpoints, web login, the Strava webhook, token encryption and the fighter-selection UI, none of which are started.
+- Packaging: server/content/ isn't in the wheel build yet.

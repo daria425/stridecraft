@@ -1,5 +1,9 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+
+# Game content definitions (YAML, one file per entity); see journal/0008.
+CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 
 # Rolling stats window; tune later (see CLAUDE.md "Stats").
 STATS_WINDOW_DAYS = 42

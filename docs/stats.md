@@ -1,4 +1,4 @@
-# How a run becomes pal stats
+# How a run becomes strider stats
 
 Plain-language reference for the maths. Decisions and reasoning live in `journal/`
 (ADR-0002, ADR-0003); this file is the "what exactly happens" version, with examples.
@@ -69,5 +69,5 @@ when your longest was 10 gives 0.012 + 0.1 * 0.2 = 0.032. No earlier runs means 
 ## Not decided yet
 
 - Whether any stat gets a cap or diminishing returns.
-- Whether the pal's base values differ per stat (all 10 for now).
+- Whether the strider's base values differ per stat (all 10 for now).
 - Skills that reward consistency (to be designed with the skills phase).

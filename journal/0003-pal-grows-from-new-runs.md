@@ -1,5 +1,7 @@
 # ADR-0003: The pal grows only from post-sign-up runs; stats never decay
 
+> **Terminology note:** "pal" in this ADR is now called a **strider** (ADR-0007). The text is left as written.
+
 **Date**: 2026-10-13
 **Status**: accepted
 **Deciders**: Daria, Claude

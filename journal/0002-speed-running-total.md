@@ -1,5 +1,7 @@
 # ADR-0002: Speed is a running total: base add plus pace bonus
 
+> **Terminology note:** "pal" in this ADR is now called a **strider** (ADR-0007). The text is left as written.
+
 **Date**: 2026-10-12
 **Status**: accepted
 **Deciders**: Daria, Claude

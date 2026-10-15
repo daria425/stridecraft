@@ -14,13 +14,13 @@ costly, so sync must avoid them.
 ## Decision
 
 - SQLite via SQLAlchemy 2.0, tables created with `create_all()`, no Alembic yet.
-- Tables: `users` (identity and profile cache), `pals` (user, fighter, `adopted_at`), `runs` (a
+- Tables: `users` (identity and profile cache), `striders` (user, breed, name, `adopted_at`), `runs` (a
   slim copy of the `Run` fields, unique on user, source and source id, best efforts as JSON),
   `run_gains` (one row per post-adoption run, frozen).
-- A run with no `run_gains` row is a baseline run. Pal stats are the pal's base values plus the sum
+- A run with no `run_gains` row is a baseline run. Strider stats are the strider's base values plus the sum
   of `run_gains`; no stats row is stored.
 - Schema changes mean deleting the DB file and running a `rebuild` command: re-fetch from Strava,
-  re-apply `adopted_at` and the fighter (passed as arguments), recompute gains with the current
+  re-apply `adopted_at`, breed and name (passed as arguments), recompute gains with the current
   formulas.
 - Sync lists Strava summaries since `last_synced_at` minus one day, skips runs already stored,
   fetches details only for new ones, and processes them in start-time order. Each run and its gains
@@ -65,7 +65,7 @@ costly, so sync must avoid them.
 
 - Gains are frozen: a Race/Workout retag, edit or delete in Strava after sync changes nothing, and
   a late-uploaded old run does not alter later runs' gains.
-- Rebuild depends on Strava history still being there, and on `adopted_at` and the fighter being
+- Rebuild depends on Strava history still being there, and on `adopted_at`, breed and name being
   supplied again.
 - Plaintext tokens and no migrations are fine for one user but must change before others sign up.
 

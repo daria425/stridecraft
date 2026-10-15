@@ -1,4 +1,4 @@
-# How runs flow into pal stats
+# How runs flow into strider stats
 
 Plain-language reference. Reasoning lives in `journal/` (ADR-0003, 0005, 0006); the maths in
 `docs/stats.md`.
@@ -6,10 +6,10 @@ Plain-language reference. Reasoning lives in `journal/` (ADR-0003, 0005, 0006); 
 ## Onboarding
 
 ```
-open app -> user has a pal?
+open app -> user has a strider?
               |- yes -> dashboard
-              '- no  -> pick a fighter (one time)
-                         |- create pal: fighter, adopted_at = now
+              '- no  -> pick a breed and name (one time)
+                         |- create strider: breed, name, adopted_at = now
                          |- fetch Strava runs from (adopted_at - 42 days) to now
                          '- store them all in `runs`
                               before adopted_at -> baseline only, no gains
@@ -26,7 +26,7 @@ numbers are saved in `run_gains` and never recomputed.
 ## Stats
 
 ```
-stat = pal base value + SUM of that column over run_gains
+stat = strider base value + SUM of that column over run_gains
 ```
 
 Nothing stores "current stats". Gains are never negative, so stats only go up. The model is

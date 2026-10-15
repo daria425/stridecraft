@@ -125,7 +125,7 @@ def test_converter_ignores_pre_signup_runs_but_uses_them_as_baseline():
     assert result.stats.speed > without_baseline.stats.speed  # but it set the pace to beat
 
 
-# --- Scenario tests: sign up, log new runs, watch the pal grow --------------------------------
+# --- Scenario tests: sign up, log new runs, watch the strider grow --------------------------------
 # History used below: 6 weeks before sign-up, 3 runs a week, 10 km at 6:00/km (3600 s each).
 
 

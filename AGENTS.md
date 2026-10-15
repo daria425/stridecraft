@@ -11,16 +11,16 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 
 ### Character
 
-- Pick one fighter ("pal") once at the start from a **pre-generated set (~4-6) of AI-generated designs**, shipped as static assets. Outfits are pre-made variants.
-- All fighters start with **identical stats**; the difference is looks only. Training makes them diverge (fast, enduring, hilly...).
+- Adopt one **strider** (journal/0007) once at the start by picking a **breed** (Greek-mythology creatures, e.g. Cetus; 3D models, a pre-made set of ~4-6 to begin with) and a **name** (a random suggestion from `server/static/names_src.json`, editable, required). Assets are static. Outfits are pre-made variants.
+- All striders start with **identical stats**; the difference is looks only. Training makes them diverge (fast, enduring, hilly...).
 - **No character level / XP.**
-- **The pal is not you** (Pokemon/Palworld principle): a caught pal has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the pal's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). "Sign-up" is **pal adoption** (`adopted_at` on the pal, journal/0005), not the Strava login. Onboarding: no pal yet means redirect to fighter selection. Persistence (SQLite + SQLAlchemy, frozen per-run gains, wipe-and-rebuild instead of migrations, sync) is in journal/0006; the flow is in `docs/data-flow.md`.
+- **The strider is not you** (the Pokemon/Palworld principle): a strider has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the strider's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). "Sign-up" is **strider adoption** (`adopted_at` on the strider, journal/0005), not the Strava login. Onboarding: no strider yet means redirect to adoption (pick breed and name). Persistence (SQLite + SQLAlchemy, frozen per-run gains, wipe-and-rebuild instead of migrations, sync) is in journal/0006; the flow is in `docs/data-flow.md`.
 - **Effortless UX:** the user just runs and logs in Strava; the app asks for no extra logging.
 
 ### Stats
 
 - Four stats: **Speed, Endurance, Hills, Consistency**.
-- **All four stats are running totals that never decay** (journal/0003): each starts at the pal's own base value and grows from per-run contributions of runs after sign-up. Stopping training never hurts the pal; consistency is rewarded by growing the Consistency stat and by skills, not by penalties. Per-run contributions should be stored when a run is first processed, not recomputed. Stats are uncapped for now; revisit a cap or diminishing returns once we see real numbers.
+- **All four stats are running totals that never decay** (journal/0003): each starts at the strider's own base value and grows from per-run contributions of runs after sign-up. Stopping training never hurts the strider; consistency is rewarded by growing the Consistency stat and by skills, not by penalties. Per-run contributions should be stored when a run is first processed, not recomputed. Stats are uncapped for now; revisit a cap or diminishing returns once we see real numbers.
 - **Speed** (journal/0002): starts at 10. Every run adds a small base amount (~0.002), plus a pace bonus when its average pace beats the average pace of the previous 6 weeks; training-flagged runs get an additional bonus. Grinding is accepted. No best efforts or splits are needed for Speed.
 - **PBs** are whatever Strava reports as `pr_rank` on `best_efforts` (journal/0001, 0002); treadmill runs have none, which is accepted.
 - **Endurance, Hills, Consistency:** per-run additions from distance and longest run (Endurance), elevation gain (Hills) and weekly run streak (Consistency); see `docs/stats.md`. The old 0-100 normalisation no longer applies.
@@ -42,7 +42,7 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 ### Quests, bosses, outfits
 
 - **Quests:** fixed, hand-authored (author adds them as ideas come). Finishing quests and beating bosses grants skills and outfits.
-- **Boss fights:** **auto-battle you watch**. Outcome is simulated from the trained pal's stats + equipped skills; the player's decisions are training and loadout beforehand.
+- **Boss fights:** **auto-battle you watch**. Outcome is simulated from the trained strider's stats + equipped skills; the player's decisions are training and loadout beforehand.
 - **Deferred:** the stat to combat-attribute mapping, and boss/skill balance, decided when the battle phase starts.
 
 ### Open / not yet decided

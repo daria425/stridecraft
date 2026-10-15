@@ -1,4 +1,4 @@
-"""Turns runs into pal stats. Formulas and worked examples: docs/stats.md.
+"""Turns runs into strider stats. Formulas and worked examples: docs/stats.md.
 
 NOTE: Claude structured this file unusually on purpose. Every tuning constant is an ALL_CAPS
 name defined INSIDE the function that uses it (not at module level or in config.py), so each
@@ -16,7 +16,7 @@ from stridecraft.models import Run
 
 @dataclass(frozen=True)
 class Stats:
-    # Defaults are the pal's starting values: Stats() is a brand new pal.
+    # Defaults are the strider's starting values: Stats() is a brand new strider.
     speed: float = 10.0
     endurance: float = 10.0
     hills: float = 10.0
@@ -128,7 +128,7 @@ def week_start(moment: datetime) -> date:
 
 
 class StatConverter:
-    """The single entry point: runs in, pal stats (and per-run gains) out."""
+    """The single entry point: runs in, strider stats (and per-run gains) out."""
 
     def convert(self, runs: list[Run], signup_date: datetime) -> Conversion:
         speed, endurance, hills = SpeedCalculator(), EnduranceCalculator(), HillsCalculator()

@@ -34,7 +34,8 @@ additive; a run's gain depends on earlier runs only through the baseline and the
 
 ## Sync
 
-1. List Strava summaries since `last_synced_at` minus a day of overlap.
+1. List Strava summaries since `last_synced_at` minus 7 days (so late uploads are caught; stored
+   runs cost no detail call).
 2. Skip runs already stored (unique on user, source, source id).
 3. Fetch details only for new runs (saves rate limit, gives best efforts).
 4. Sort by start time; for each run compute gains against stored runs plus earlier runs in the
@@ -47,4 +48,6 @@ A run starting before `adopted_at` is baseline even if uploaded later.
 
 - Gains are frozen: retagging, editing or deleting a run in Strava after sync changes nothing.
 - A late upload with an old start time does not change gains already stored for later runs.
+- A run that shows up in Strava with a start time more than 7 days before the previous sync is
+  never fetched until a rebuild.
 - Schema changes use wipe-and-rebuild (re-fetch from Strava, recompute), not migrations.

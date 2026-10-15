@@ -33,3 +33,11 @@ def test_detail_fetched_for_gps_runs_only_and_non_runs_ignored(tmp_path):
     assert [a["id"] for a in activities] == [1, 2]
     detail_calls = [p for p in requested if "/activities/" in p]
     assert detail_calls == ["/api/v3/activities/1"]
+
+
+def test_already_stored_runs_cost_no_detail_call(tmp_path):
+    requested = []
+    activities = make_client(tmp_path, requested).fetch_activities(after_epoch=0, skip_ids={"1"})
+
+    assert [a["id"] for a in activities] == [2]
+    assert not [p for p in requested if "/activities/" in p]

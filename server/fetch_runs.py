@@ -16,14 +16,6 @@ RAW_DIR = ROOT / "data" / "raw"
 SECONDS_PER_DAY = 86400
 
 
-def ensure_authorized(auth: StravaAuth) -> None:
-    if auth.store.load() is not None:
-        return
-    print(f"Open this URL and approve access:\n\n{auth.authorize_url()}\n")
-    print("You'll land on a broken localhost page; copy the `code=` value from its URL.")
-    auth.exchange_code(input("code: ").strip())
-
-
 def dump_raw(details: list[dict]) -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     for detail in details:
@@ -51,7 +43,7 @@ def main(signup_date: datetime | None = None) -> None:
     """`signup_date` defaults to now, so no run counts yet; pass an earlier date to try stats."""
     signup_date = signup_date or datetime.now(UTC)
     auth = StravaAuth(StravaConfig.from_env(), TokenStore(ROOT / "tokens.json"))
-    ensure_authorized(auth)
+    auth.ensure_authorized()
     client = StravaClient(auth)
 
     after = int(time.time()) - STATS_WINDOW_DAYS * SECONDS_PER_DAY

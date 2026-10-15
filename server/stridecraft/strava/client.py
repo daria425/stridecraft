@@ -28,8 +28,11 @@ class StravaClient:
         response.raise_for_status()
         return response.json()
 
+    def athlete(self) -> dict:
+        return self.get("/athlete")
+
     def athlete_id(self) -> int:
-        return self.get("/athlete")["id"]
+        return self.athlete()["id"]
 
     def list_run_summaries(self, after_epoch: int) -> list[dict]:
         """Raw activity summaries for runs since `after_epoch`, across all pages."""
@@ -49,9 +52,16 @@ class StravaClient:
         """Full activity, including best_efforts (one API call each)."""
         return self.get(f"/activities/{activity_id}")
 
-    def fetch_activities(self, after_epoch: int) -> list[dict]:
-        """Runs since `after_epoch`; detail only for GPS runs, as treadmill has no efforts."""
+    def fetch_activities(
+        self, after_epoch: int, skip_ids: frozenset[str] | set[str] = frozenset()
+    ) -> list[dict]:
+        """Runs since `after_epoch` whose id is not in `skip_ids` (already stored).
+
+        Detail only for GPS runs, as treadmill has no efforts, and never for skipped ones: each
+        detail call counts against Strava's rate limit.
+        """
         return [
             summary if summary.get("trainer") else self.activity_detail(summary["id"])
             for summary in self.list_run_summaries(after_epoch)
+            if str(summary["id"]) not in skip_ids
         ]

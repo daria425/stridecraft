@@ -48,3 +48,26 @@ class Run:
             is_training=payload.get("workout_type") in TRAINING_WORKOUT_TYPES,
             best_efforts=[BestEffort.from_strava(e) for e in payload.get("best_efforts") or []],
         )
+
+
+@dataclass(frozen=True)
+class User:
+    """Identity and a small cache of the Strava profile; everything else stays in Strava."""
+
+    id: int
+    strava_athlete_id: int
+    username: str | None
+    firstname: str | None
+    profile_url: str | None
+    last_synced_at: datetime | None
+
+
+@dataclass(frozen=True)
+class Strider:
+    """A user's creature. `adopted_at` is the sign-up date: only runs after it add to stats."""
+
+    id: int
+    user_id: int
+    breed: str
+    name: str
+    adopted_at: datetime

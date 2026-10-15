@@ -56,13 +56,23 @@ class StravaAuth:
         )
         return f"{AUTHORIZE_URL}?{query}"
 
+    def ensure_authorized(self) -> None:
+        """First run only: walk the user through approving access and paste back the code."""
+        if self.store.load() is not None:
+            return
+        print(f"Open this URL and approve access:\n\n{self.authorize_url()}\n")
+        print("You'll land on a broken localhost page; copy the `code=` value from its URL.")
+        self.exchange_code(input("code: ").strip())
+
     def exchange_code(self, code: str) -> Tokens:
         return self.request_tokens({"grant_type": "authorization_code", "code": code})
 
     def valid_access_token(self) -> str:
         tokens = self.store.load()
         if tokens is None:
-            raise RuntimeError("Not authorized yet - run `fetch_runs.py` and follow the prompt")
+            raise RuntimeError(
+                "Not authorized yet - run `python -m stridecraft.cli status` and follow the prompt"
+            )
         if tokens.is_expired():
             tokens = self.request_tokens(
                 {"grant_type": "refresh_token", "refresh_token": tokens.refresh_token}

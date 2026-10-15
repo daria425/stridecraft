@@ -22,6 +22,14 @@ class Stats:
     hills: float = 10.0
     consistency: float = 10.0
 
+    @classmethod
+    def total(cls, gains: list["RunGains"]) -> "Stats":
+        """A brand new strider plus everything it has gained so far."""
+        stats = cls()
+        for run_gains in gains:
+            stats = stats.plus(run_gains)
+        return stats
+
     def plus(self, gains: "RunGains") -> "Stats":
         return Stats(
             self.speed + gains.speed,
@@ -33,7 +41,7 @@ class Stats:
 
 @dataclass(frozen=True)
 class RunGains:
-    """What one run added to each stat (to be stored when persistence exists)."""
+    """What one run added to each stat (stored once, as a `run_gains` row; ADR-0006)."""
 
     source_id: str
     speed: float
@@ -130,24 +138,23 @@ def week_start(moment: datetime) -> date:
 class StatConverter:
     """The single entry point: runs in, strider stats (and per-run gains) out."""
 
-    def convert(self, runs: list[Run], signup_date: datetime) -> Conversion:
-        speed, endurance, hills = SpeedCalculator(), EnduranceCalculator(), HillsCalculator()
-        consistency = ConsistencyCalculator(signup_date)
+    def gains_for(self, run: Run, others: list[Run], signup_date: datetime) -> RunGains:
+        """What `run` adds. `others` may hold any stored runs; only those before `run` count, so
+        a run uploaded late is judged against what came before it, not what came after."""
+        history = [r for r in others if r.start_time < run.start_time]
+        return RunGains(
+            source_id=run.source_id,
+            speed=SpeedCalculator().gain(run, history),
+            endurance=EnduranceCalculator().gain(run, history),
+            hills=HillsCalculator().gain(run, history),
+            consistency=ConsistencyCalculator(signup_date).gain(run, history),
+        )
 
+    def convert(self, runs: list[Run], signup_date: datetime) -> Conversion:
         ordered = sorted(runs, key=lambda r: r.start_time)
-        stats = Stats()
-        gains: list[RunGains] = []
-        for index, run in enumerate(ordered):
-            if run.start_time < signup_date:
-                continue
-            history = ordered[:index]
-            run_gains = RunGains(
-                source_id=run.source_id,
-                speed=speed.gain(run, history),
-                endurance=endurance.gain(run, history),
-                hills=hills.gain(run, history),
-                consistency=consistency.gain(run, history),
-            )
-            stats = stats.plus(run_gains)
-            gains.append(run_gains)
-        return Conversion(stats, gains)
+        gains = [
+            self.gains_for(run, ordered[:index], signup_date)
+            for index, run in enumerate(ordered)
+            if run.start_time >= signup_date
+        ]
+        return Conversion(Stats.total(gains), gains)

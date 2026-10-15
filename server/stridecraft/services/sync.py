@@ -6,24 +6,27 @@ from sqlalchemy.orm import Session
 
 from stridecraft.config import STATS_WINDOW_DAYS
 from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
+from stridecraft.errors import NoStriderError, RateLimitError
 from stridecraft.models import Run, Strider, User
 from stridecraft.stats.stats_calculator import StatConverter
 from stridecraft.strava.client import StravaClient
 
 SOURCE = "strava"
+# Best efforts need one detail request per run, and Strava allows ~100 requests per 15 minutes.
+# Stats never need them (the activity list has distance, time, elevation and tag), so only the
+# newest runs after adoption get the call; older ones are stored without best efforts.
+DETAIL_CAP = 50
 # Look this far back past the last sync, so a run uploaded late (watch syncing days after the
 # run) is still picked up. Cheap: stored runs are skipped before any detail call is made.
 SYNC_OVERLAP = timedelta(days=7)
 
 
-class NoStriderError(RuntimeError):
-    pass
-
-
 @dataclass(frozen=True)
 class SyncResult:
-    new_runs: int
-    baseline_runs: int  # of the new runs, how many were before adoption (no gains)
+    new_runs: int  # runs stored by this sync
+    baseline_runs: int  # of those, how many were before adoption (no gains)
+    detailed_runs: int  # of those, how many have best efforts
+    truncated: bool = False  # True if the oldest runs were left out (away for very long)
 
 
 class SyncService:
@@ -51,20 +54,46 @@ class SyncService:
         started = self.clock()
         known = self.runs.known_source_ids(user.id, SOURCE)
         after = self.fetch_start(user, strider.adopted_at)
-        details = self.client.fetch_activities(int(after.timestamp()), known)
-        new_runs = sorted(
-            (Run.from_strava(detail, user.id) for detail in details), key=lambda r: r.start_time
+        # Oldest first: each run's baseline needs the runs before it already stored.
+        listing = self.client.new_summaries(
+            int(after.timestamp()), known, before_epoch=int(started.timestamp()) + 1
         )
+        found = sorted(
+            ((summary, Run.from_strava(summary, user.id)) for summary in listing.summaries),
+            key=lambda pair: pair[1].start_time,
+        )
+        detail_ids = self.newest_gps_ids(found, strider.adopted_at)
 
         history = self.runs.history(user.id)
-        baseline = 0
-        for run in new_runs:
+        baseline = detailed = 0
+        for summary, run in found:
+            if summary["id"] in detail_ids:
+                run = self.with_best_efforts(summary, run, user.id, detail_ids)
+            detailed += bool(run.best_efforts)
             baseline += self.store(run, strider, history, started)
             history.append(run)
 
         self.users.mark_synced(user.id, started)
         self.session.commit()
-        return SyncResult(len(new_runs), baseline)
+        return SyncResult(len(found), baseline, detailed, listing.truncated)
+
+    @staticmethod
+    def newest_gps_ids(found: list[tuple[dict, Run]], adopted_at: datetime) -> set[int]:
+        """Ids of the newest DETAIL_CAP GPS runs from adoption on (treadmill has no efforts)."""
+        wanted = [
+            summary["id"]
+            for summary, run in reversed(found)
+            if not summary.get("trainer") and run.start_time >= adopted_at
+        ]
+        return set(wanted[:DETAIL_CAP])
+
+    def with_best_efforts(self, summary: dict, run: Run, user_id: int, detail_ids: set[int]) -> Run:
+        """The run rebuilt from its detailed activity, or as is if Strava says to slow down."""
+        try:
+            return Run.from_strava(self.client.activity_detail(summary["id"]), user_id)
+        except RateLimitError:
+            detail_ids.clear()  # stop asking: the stats do not depend on best efforts
+            return run
 
     def store(self, run: Run, strider: Strider, history: list[Run], computed_at: datetime) -> bool:
         """Save the run; before adoption it is baseline only and gets no gains. Returns that."""

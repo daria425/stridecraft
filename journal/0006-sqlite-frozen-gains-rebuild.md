@@ -22,9 +22,11 @@ costly, so sync must avoid them.
 - Schema changes mean deleting the DB file and running a `rebuild` command: re-fetch from Strava,
   re-apply `adopted_at`, breed and name (passed as arguments), recompute gains with the current
   formulas.
-- Sync lists Strava summaries since `last_synced_at` minus 7 days (so a late-uploaded run is still caught), skips
-  runs already stored, fetches details only for new ones, and processes them in start-time order. Each run and its gains
-  are inserted in one transaction, so re-running a sync changes nothing.
+- Sync lists Strava summaries since `last_synced_at` minus 7 days (so a late-uploaded run is
+  still caught) and skips runs already stored. It processes them oldest first, committing each run
+  with its gains, so re-running a sync changes nothing. Gains come from the list data alone; best
+  efforts (one detail request each) are fetched for only the newest runs, and listing is bounded,
+  both to stay within Strava's rate limit (see ADR-0009).
 - Tokens stay in `tokens.json` for now.
 
 ## Alternatives Considered

@@ -1,7 +1,7 @@
 # ADR-0001: Strava fetch: 42-day window, detail calls for best efforts
 
 **Date**: 2026-10-12
-**Status**: accepted
+**Status**: partly superseded by ADR-0009 (detail calls are now capped; the 42-day baseline window stays)
 **Deciders**: Daria, Claude
 
 ## Context

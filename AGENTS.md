@@ -78,3 +78,4 @@ This is a collaboration, not a hand-the-keys-over build. Specifically:
 - No testing for the sake of testing, tests should verify the app works and validate edge case behavior rather than that the function which returns a string indeed returns a string
 - Stat constants (base add, `k` values etc.) are defined as ALL_CAPS names **inside the function that uses them**, not in `config.py`, with a comment at the top of the file explaining why (the author finds the maths hard to follow otherwise). Deliberate exception to the usual module-level convention.
 - Shared functions should be grouped (for example in a dedicated utils/ module, grouped by theme)
+- Expected failures are typed errors from `stridecraft/errors.py` with plain-English messages, never CLI hints (journal/0010); the CLI and later the API route catch `StridecraftError` at the top. The CLI is temporary: no tests for it.

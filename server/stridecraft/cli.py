@@ -16,9 +16,10 @@ from stridecraft.config import TOKENS_PATH, StravaConfig
 from stridecraft.content.registry import Content
 from stridecraft.db.database import Database
 from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
+from stridecraft.errors import StridecraftError
 from stridecraft.models import User
-from stridecraft.services.adoption import AdoptionError, AdoptionService
-from stridecraft.services.sync import NoStriderError, SyncResult, SyncService
+from stridecraft.services.adoption import AdoptionService
+from stridecraft.services.sync import SyncResult, SyncService
 from stridecraft.stats.stats_calculator import Stats
 from stridecraft.strava.auth import StravaAuth, TokenStore
 from stridecraft.strava.client import StravaClient
@@ -110,7 +111,12 @@ class Cli:
 
     @staticmethod
     def print_sync(result: SyncResult) -> None:
-        print(f"{result.new_runs} new runs ({result.baseline_runs} before adoption: baseline only)")
+        print(
+            f"{result.new_runs} new runs ({result.baseline_runs} before adoption: baseline only; "
+            f"{result.detailed_runs} with best efforts)"
+        )
+        if result.truncated:
+            print("Note: too many runs to import at once, so the oldest ones were left out.")
 
     @staticmethod
     def print_stats(session: Session, user: User) -> None:
@@ -141,7 +147,7 @@ def main() -> None:
     args = build_parser(sorted(cli.content.breeds)).parse_args()
     try:
         getattr(cli, args.command)(args)
-    except (AdoptionError, NoStriderError) as error:
+    except StridecraftError as error:
         raise SystemExit(str(error)) from error
 
 

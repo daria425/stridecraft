@@ -34,12 +34,20 @@ additive; a run's gain depends on earlier runs only through the baseline and the
 
 ## Sync
 
-1. List Strava summaries since `last_synced_at` minus 7 days (so late uploads are caught; stored
-   runs cost no detail call).
+1. List Strava summaries since `last_synced_at` minus 7 days (so late uploads are caught), in
+   90-day windows, newest first. Strava does not document its result order, so we never rely on it.
+   The list alone has what every stat needs (distance, time, elevation, Race/Workout tag). A user
+   away for two years is about a dozen requests. Each sync lists at most 25 pages (5,000
+   activities); beyond that the oldest windows are dropped whole (never half a window) and the
+   result is flagged `truncated`, so the app can mention it. The sync does not fail.
 2. Skip runs already stored (unique on user, source, source id).
-3. Fetch details only for new runs (saves rate limit, gives best efforts).
-4. Sort by start time; for each run compute gains against stored runs plus earlier runs in the
-   batch, and insert the run and its gains in one transaction.
+3. Sort the new runs oldest first. For each, compute gains against stored runs plus the earlier
+   runs just processed, and commit the run and its gains in one transaction. Baseline runs
+   (before adoption) are stored without gains.
+4. Best efforts (for PBs) need one detail request per run, and Strava allows about 100 requests
+   per 15 minutes. So only the newest 50 GPS runs from adoption on get the detail call; the rest
+   are stored without best efforts. If Strava still answers 429, the sync carries on without
+   details: stats never depend on them.
 5. Re-running a sync changes nothing.
 
 A run starting before `adopted_at` is baseline even if uploaded later.
@@ -50,4 +58,8 @@ A run starting before `adopted_at` is baseline even if uploaded later.
 - A late upload with an old start time does not change gains already stored for later runs.
 - A run that shows up in Strava with a start time more than 7 days before the previous sync is
   never fetched until a rebuild.
+- A truncated sync never imports the dropped (oldest) runs later, as the sync cursor moves on.
+- Runs stored without best efforts are not upgraded later, so they can't trigger PB skills.
+- Gains cost grows with the square of the run count (each run rescans history): fine for
+  thousands of runs, slow beyond that.
 - Schema changes use wipe-and-rebuild (re-fetch from Strava, recompute), not migrations.

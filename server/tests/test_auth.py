@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from stridecraft.config import StravaConfig
+from stridecraft.errors import NotAuthorizedError
 from stridecraft.strava.auth import StravaAuth, Tokens, TokenStore
 
 
@@ -45,7 +46,15 @@ def test_token_inside_expiry_margin_counts_as_expired():
     assert Tokens("a", "r", int(time.time()) + 30).is_expired()
 
 
-def test_missing_tokens_raise_helpful_error(tmp_path):
+def test_missing_tokens_mean_not_authorized(tmp_path):
     auth, _ = make_auth(tmp_path, lambda r: httpx.Response(500))
-    with pytest.raises(RuntimeError, match="Not authorized"):
+    with pytest.raises(NotAuthorizedError):
+        auth.valid_access_token()
+
+
+def test_a_refresh_token_strava_rejects_means_connect_again(tmp_path):
+    """E.g. someone returns after years, or revoked access in Strava's settings."""
+    auth, store = make_auth(tmp_path, lambda r: httpx.Response(400))
+    store.save(Tokens("stale", "dead-refresh", int(time.time()) - 10))
+    with pytest.raises(NotAuthorizedError):
         auth.valid_access_token()

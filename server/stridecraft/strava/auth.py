@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 import httpx
 
 from stridecraft.config import StravaConfig
+from stridecraft.errors import NotAuthorizedError, StravaError
 
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 TOKEN_URL = "https://www.strava.com/oauth/token"
@@ -70,9 +71,7 @@ class StravaAuth:
     def valid_access_token(self) -> str:
         tokens = self.store.load()
         if tokens is None:
-            raise RuntimeError(
-                "Not authorized yet - run `python -m stridecraft.cli status` and follow the prompt"
-            )
+            raise NotAuthorizedError("Strava access has not been set up yet")
         if tokens.is_expired():
             tokens = self.request_tokens(
                 {"grant_type": "refresh_token", "refresh_token": tokens.refresh_token}
@@ -88,7 +87,10 @@ class StravaAuth:
                 **grant,
             },
         )
-        response.raise_for_status()
+        if response.status_code in (400, 401):
+            raise NotAuthorizedError("Strava no longer accepts the saved login; connect again")
+        if response.is_error:
+            raise StravaError(f"Strava returned an error while logging in ({response.status_code})")
         body = response.json()
         # Strava may rotate the refresh token, so always persist the latest pair.
         tokens = Tokens(body["access_token"], body["refresh_token"], body["expires_at"])

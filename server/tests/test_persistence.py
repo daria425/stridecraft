@@ -3,17 +3,20 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
+from stridecraft.errors import AdoptionError, NoStriderError, RateLimitError
 from stridecraft.models import BestEffort, Run
-from stridecraft.services.adoption import AdoptionError, AdoptionService
-from stridecraft.services.sync import NoStriderError, SyncService
+from stridecraft.services.adoption import AdoptionService
+from stridecraft.services.sync import SyncService
 from stridecraft.stats.stats_calculator import StatConverter, Stats
+from stridecraft.strava.client import RunListing
 from stridecraft.utils.names import MAX_NAME_LENGTH, random_name
 
 ADOPTED = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 def activity(days_after_adoption: float, km: float = 10, elevation: float = 0, **extra) -> dict:
-    """A Strava activity payload starting `days_after_adoption` days from ADOPTED."""
+    """A Strava activity starting `days_after_adoption` days from ADOPTED. Like the real API, the
+    list shows it without `best_efforts`; only the detail call includes them."""
     start = ADOPTED + timedelta(days=days_after_adoption)
     return {
         "id": int(start.timestamp()),
@@ -21,25 +24,41 @@ def activity(days_after_adoption: float, km: float = 10, elevation: float = 0, *
         "distance": km * 1000,
         "moving_time": int(km * 6 * 60),
         "total_elevation_gain": elevation,
+        "best_efforts": [{"name": "5k", "distance": 5000, "elapsed_time": 1500, "pr_rank": None}],
         **extra,
     }
 
 
 class FakeStrava:
-    """Behaves like StravaClient.fetch_activities: honours `after` and skips stored ids."""
+    """Behaves like StravaClient: `after` and stored ids are honoured, summaries carry no best
+    efforts, and `detail_budget` (if set) is how many detail calls work before a 429."""
 
     def __init__(self, *activities: dict):
         self.activities = list(activities)
         self.calls: list[tuple[datetime, set[str]]] = []
+        self.detailed_ids: list[int] = []
+        self.detail_budget: int | None = None
+        self.truncated = False
 
-    def fetch_activities(self, after_epoch: int, skip_ids=frozenset()) -> list[dict]:
+    def new_summaries(
+        self, after_epoch: int, skip_ids=frozenset(), before_epoch=None
+    ) -> RunListing:
         self.calls.append((datetime.fromtimestamp(after_epoch, UTC), set(skip_ids)))
-        return [
-            a
-            for a in self.activities
-            if int(datetime.fromisoformat(a["start_date"]).timestamp()) >= after_epoch
+        found = [
+            {k: v for k, v in a.items() if k != "best_efforts"}
+            for a in reversed(self.activities)  # Strava lists newest first
+            if after_epoch <= int(datetime.fromisoformat(a["start_date"]).timestamp())
             and str(a["id"]) not in skip_ids
         ]
+        return RunListing(found, self.truncated)
+
+    def activity_detail(self, activity_id: int) -> dict:
+        if self.detail_budget is not None:
+            if self.detail_budget == 0:
+                raise RateLimitError("429")
+            self.detail_budget -= 1
+        self.detailed_ids.append(activity_id)
+        return next(a for a in self.activities if a["id"] == activity_id)
 
 
 class Setup:
@@ -133,6 +152,55 @@ def test_first_sync_reaches_back_for_a_baseline_then_only_a_little_past_last_syn
     assert first_after < ADOPTED - timedelta(days=30)
     assert second_after > ADOPTED
     assert skipped  # stored runs are passed on so they cost no detail call
+
+
+def test_best_efforts_only_for_the_newest_capped_runs_but_every_run_earns_gains(
+    make_setup, session, monkeypatch
+):
+    monkeypatch.setattr("stridecraft.services.sync.DETAIL_CAP", 2)
+    baseline = activity(-3)
+    runs = [activity(day) for day in range(1, 6)]
+    setup = make_setup(baseline, *runs)
+
+    result = setup.sync()
+
+    stored = RunRepository(session).history(setup.user.id)
+    with_efforts = {r.source_id for r in stored if r.best_efforts}
+    assert sorted(setup.fake.detailed_ids) == sorted(r["id"] for r in runs[-2:])  # newest two
+    assert with_efforts == {str(r["id"]) for r in runs[-2:]}
+    assert (result.new_runs, result.detailed_runs) == (6, 2)
+    assert len(RunRepository(session).gains(setup.user.id)) == 5  # every post-adoption run
+    assert setup.stats() == StatConverter().convert(stored, ADOPTED).stats
+
+
+def test_a_rate_limit_on_details_never_stops_the_sync(make_setup, session):
+    setup = make_setup(*[activity(day) for day in range(1, 5)])
+    setup.fake.detail_budget = 1
+
+    result = setup.sync()
+
+    stored = RunRepository(session).history(setup.user.id)
+    assert (result.new_runs, result.detailed_runs) == (4, 1)
+    assert UserRepository(session).get(setup.user.id).last_synced_at is not None
+    assert setup.stats() == StatConverter().convert(stored, ADOPTED).stats
+
+
+def test_a_truncated_listing_is_still_synced_and_flagged(make_setup, session):
+    setup = make_setup(*[activity(day) for day in range(1, 4)])
+    setup.fake.truncated = True
+
+    result = setup.sync()
+
+    stored = RunRepository(session).history(setup.user.id)
+    assert result.truncated
+    assert len(stored) == 3
+    assert setup.stats() == StatConverter().convert(stored, ADOPTED).stats
+
+
+def test_nothing_new_is_a_clean_empty_sync(make_setup):
+    setup = make_setup()
+    result = setup.sync()
+    assert (result.new_runs, result.detailed_runs) == (0, 0)
 
 
 def test_cannot_sync_before_adopting(session, user):

@@ -4,12 +4,9 @@ from sqlalchemy.orm import Session
 
 from stridecraft.content.registry import Content
 from stridecraft.db.repositories import StriderRepository
+from stridecraft.errors import AdoptionError
 from stridecraft.models import Strider, User
 from stridecraft.utils.names import clean_name
-
-
-class AdoptionError(ValueError):
-    pass
 
 
 class AdoptionService:

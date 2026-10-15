@@ -6,12 +6,16 @@ Repositories never commit: the caller decides what belongs in one transaction.
 from dataclasses import asdict
 from datetime import datetime
 
+from cryptography.fernet import Fernet
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from stridecraft.db.tables import RunGainRow, RunRow, StriderRow, UserRow
+from stridecraft.db.tables import RunGainRow, RunRow, StravaTokenRow, StriderRow, UserRow
+from stridecraft.errors import AlreadyAdoptedError
 from stridecraft.models import BestEffort, Run, Strider, User
 from stridecraft.stats.stats_calculator import RunGains
+from stridecraft.strava.auth import Tokens
 
 
 class UserRepository:
@@ -46,6 +50,28 @@ class UserRepository:
         self.session.flush()
         return self.to_user(row)
 
+    def upsert_profile(
+        self,
+        strava_athlete_id: int,
+        username: str | None,
+        firstname: str | None,
+        profile_url: str | None,
+    ) -> User:
+        """The user for this Strava athlete, created on first login, profile refreshed on every
+        one. Two simultaneous first logins end up with one user, not an error."""
+        row = self.session.scalar(select(UserRow).filter_by(strava_athlete_id=strava_athlete_id))
+        if row is None:
+            try:
+                with self.session.begin_nested():
+                    return self.create(strava_athlete_id, username, firstname, profile_url)
+            except IntegrityError:  # the other login won the race
+                row = self.session.scalar(
+                    select(UserRow).filter_by(strava_athlete_id=strava_athlete_id)
+                )
+        row.username, row.firstname, row.profile_url = username, firstname, profile_url
+        self.session.flush()
+        return self.to_user(row)
+
     def mark_synced(self, user_id: int, synced_at: datetime) -> None:
         self.session.get(UserRow, user_id).last_synced_at = synced_at
 
@@ -75,9 +101,42 @@ class StriderRepository:
 
     def create(self, user_id: int, breed: str, name: str, adopted_at: datetime) -> Strider:
         row = StriderRow(user_id=user_id, breed=breed, name=name, adopted_at=adopted_at)
+        try:
+            with self.session.begin_nested():
+                self.session.add(row)
+        except IntegrityError as error:  # a double click got there first
+            raise AlreadyAdoptedError("This user already has a strider") from error
+        return Strider(row.id, row.user_id, row.breed, row.name, row.adopted_at)
+
+
+class TokenRepository:
+    """Strava tokens per user, encrypted at rest with the app's Fernet key."""
+
+    def __init__(self, session: Session, cipher: Fernet):
+        self.session = session
+        self.cipher = cipher
+
+    def get(self, user_id: int) -> Tokens | None:
+        row = self.session.get(StravaTokenRow, user_id)
+        if row is None:
+            return None
+        return Tokens(
+            self.decrypt(row.access_token), self.decrypt(row.refresh_token), row.expires_at
+        )
+
+    def save(self, user_id: int, tokens: Tokens) -> None:
+        row = self.session.get(StravaTokenRow, user_id) or StravaTokenRow(user_id=user_id)
+        row.access_token = self.encrypt(tokens.access_token)
+        row.refresh_token = self.encrypt(tokens.refresh_token)
+        row.expires_at = tokens.expires_at
         self.session.add(row)
         self.session.flush()
-        return Strider(row.id, row.user_id, row.breed, row.name, row.adopted_at)
+
+    def encrypt(self, text: str) -> str:
+        return self.cipher.encrypt(text.encode()).decode()
+
+    def decrypt(self, text: str) -> str:
+        return self.cipher.decrypt(text.encode()).decode()
 
 
 class RunRepository:

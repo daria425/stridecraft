@@ -83,3 +83,14 @@ class RunGainRow(Base):
     computed_at: Mapped[datetime] = mapped_column(UtcDateTime)
 
     run: Mapped[RunRow] = relationship(back_populates="gains")
+
+
+class StravaTokenRow(Base):
+    """A user's Strava login. The tokens are encrypted; see TokenRepository."""
+
+    __tablename__ = "strava_tokens"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    access_token: Mapped[str]
+    refresh_token: Mapped[str]
+    expires_at: Mapped[int]

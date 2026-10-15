@@ -32,3 +32,25 @@ class StravaConfig:
                 f"Missing {missing} - copy .env.example to .env "
                 "and run with `uv run --env-file .env`"
             ) from None
+
+
+@dataclass(frozen=True)
+class AppConfig:
+    """Settings for the web API (the CLI does not need them)."""
+
+    session_secret: str  # signs the login cookie
+    token_encryption_key: str  # Fernet key; encrypts Strava tokens in the database
+    frontend_url: str  # where the browser is sent after login, and the allowed CORS origin
+    public_url: str  # where this API is reachable by the browser (Strava redirects back to it)
+
+    @classmethod
+    def from_env(cls) -> "AppConfig":
+        try:
+            return cls(
+                os.environ["SESSION_SECRET"],
+                os.environ["TOKEN_ENCRYPTION_KEY"],
+                os.environ.get("FRONTEND_URL", "http://localhost:5173"),
+                os.environ.get("PUBLIC_URL", "http://localhost:8000"),
+            )
+        except KeyError as missing:
+            raise SystemExit(f"Missing {missing} - see .env.example") from None

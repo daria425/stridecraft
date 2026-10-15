@@ -6,15 +6,21 @@ Plain-language reference. Reasoning lives in `journal/` (ADR-0003, 0005, 0006); 
 ## Onboarding
 
 ```
-open app -> user has a strider?
-              |- yes -> dashboard
-              '- no  -> pick a breed and name (one time)
-                         |- create strider: breed, name, adopted_at = now
-                         |- fetch Strava runs from (adopted_at - 42 days) to now
-                         '- store them all in `runs`
-                              before adopted_at -> baseline only, no gains
-                              after adopted_at  -> processed like any synced run
+GET /auth/strava/login -> Strava -> GET /auth/strava/callback
+   |- user created or fetched by Strava athlete id, tokens stored encrypted, cookie set
+   '- redirect to the frontend
+GET /me -> strider?
+   |- yes -> dashboard
+   '- null -> adoption page: GET /breeds, GET /names/random
+                POST /me/strider {breed, name}
+                |- create strider: adopted_at = now
+                '- background import (GET /me/sync shows progress):
+                     fetch Strava runs from (adopted_at - 42 days) to now
+                     before adopted_at -> baseline only, no gains
+                     after adopted_at  -> processed like any synced run
 ```
+
+Imports run one at a time across all users, because Strava's rate limits belong to the app.
 
 ## What a run is worth
 

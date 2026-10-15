@@ -84,5 +84,5 @@ Current open items:
 
 - PBs and skills: best efforts are stored for the newest 50 runs, ready for the skills phase.
 - Base values: the strider's base values are still all 10, and breeds are looks only.
-- Next phases: FastAPI endpoints, web login, the Strava webhook, token encryption and the fighter-selection UI, none of which are started.
+- API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Not started: the web frontend, the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
 - Packaging: server/content/ isn't in the wheel build yet.

@@ -13,3 +13,4 @@
 | [0009](0009-bounded-strava-usage.md) | Stats come from the activity list; Strava usage is bounded | accepted | 2026-10-15 |
 | [0010](0010-typed-errors-handled-at-the-top.md) | Expected errors are typed, UI-neutral, and caught at the top level | accepted | 2026-10-15 |
 | [0011](0011-scale-stat-constants-uniformly.md) | Scale all stat constants x20, uniformly | accepted | 2026-10-15 |
+| [0012](0012-rest-api-strava-login.md) | FastAPI REST API, "log in with Strava" via Authlib and a session cookie | accepted | 2026-10-15 |

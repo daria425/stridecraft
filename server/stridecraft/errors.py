@@ -27,3 +27,15 @@ class NoStriderError(StridecraftError):
 
 class AdoptionError(StridecraftError):
     """The breed, name or user is not valid for adopting a strider."""
+
+
+class AlreadyAdoptedError(AdoptionError):
+    """The user already has a strider; there is one per user."""
+
+
+class SyncInProgressError(StridecraftError):
+    """An import for this user is already running."""
+
+
+class NotLoggedInError(StridecraftError):
+    """There is no logged-in user for this request."""

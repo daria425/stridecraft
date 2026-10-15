@@ -1,4 +1,6 @@
-"""Command line for the single-user phase (no web login yet):
+"""Dev-only, single-user command line (the web API is in stridecraft/api/; journal/0012).
+It keeps its own file-based Strava tokens and can backdate adoption, which the API cannot.
+Nothing in api/ may import this module.
 
 uv run --env-file .env python -m stridecraft.cli adopt --breed cetus
 uv run --env-file .env python -m stridecraft.cli sync

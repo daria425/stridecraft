@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from stridecraft.content.registry import Content
 from stridecraft.db.repositories import StriderRepository
-from stridecraft.errors import AdoptionError
+from stridecraft.errors import AdoptionError, AlreadyAdoptedError
 from stridecraft.models import Strider, User
 from stridecraft.utils.names import clean_name
 
@@ -23,7 +23,7 @@ class AdoptionService:
             known = ", ".join(sorted(self.content.breeds)) or "none yet"
             raise AdoptionError(f"Unknown breed {breed!r} (available: {known})")
         if self.striders.get_for_user(user.id):
-            raise AdoptionError("This user already has a strider")
+            raise AlreadyAdoptedError("This user already has a strider")
         try:
             name = clean_name(name)
         except ValueError as error:

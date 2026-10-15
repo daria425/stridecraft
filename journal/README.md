@@ -9,3 +9,4 @@
 | [0005](0005-strider-adoption-is-the-signup-date.md) | Strider adoption is the sign-up date | accepted | 2026-10-13 |
 | [0006](0006-sqlite-frozen-gains-rebuild.md) | SQLite, SQLAlchemy, frozen gains; rebuild instead of migrations | accepted | 2026-10-13 |
 | [0007](0007-striders-breeds-and-names.md) | Pals become striders, with a breed and a name | accepted | 2026-10-15 |
+| [0008](0008-game-content-yaml.md) | Game content is YAML files, validated by pydantic | accepted | 2026-10-15 |

@@ -7,7 +7,7 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 - **Audience:** just the author first. Keep a `user_id` in the schema so multi-user later isn't a rewrite.
 - **Data source:** Strava API (OAuth + webhook/sync). Model a generic `Run` so other sources can plug in later.
 - **Stack:** Python (FastAPI) server in `server/`, web frontend in `web/`.
-- **Content is data, not code:** skills, quests, bosses and outfits live in data files (author adds new ones over time).
+- **Content is data, not code:** skills, quests, bosses and outfits live in data files (author adds new ones over time): YAML, one file per entity in `server/content/`, validated by pydantic and loaded via `stridecraft.content.Content` (journal/0008).
 
 ### Character
 

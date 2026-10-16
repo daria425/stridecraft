@@ -6,7 +6,7 @@ from stridecraft.content.registry import Content
 from stridecraft.db.repositories import StriderRepository
 from stridecraft.errors import AdoptionError, AlreadyAdoptedError
 from stridecraft.models import Strider, User
-from stridecraft.utils.names import clean_name
+from stridecraft.utils.names import clean_name, random_name
 
 
 class AdoptionService:
@@ -17,7 +17,7 @@ class AdoptionService:
         self.content = content
 
     def adopt(
-        self, user: User, breed: str, name: str, adopted_at: datetime | None = None
+        self, user: User, breed: str, name: str | None, adopted_at: datetime | None = None
     ) -> Strider:
         if breed not in self.content.breeds:
             known = ", ".join(sorted(self.content.breeds)) or "none yet"
@@ -25,7 +25,7 @@ class AdoptionService:
         if self.striders.get_for_user(user.id):
             raise AlreadyAdoptedError("This user already has a strider")
         try:
-            name = clean_name(name)
+            name = random_name() if name is None else clean_name(name)
         except ValueError as error:
             raise AdoptionError(str(error)) from error
         return self.striders.create(user.id, breed, name, adopted_at or datetime.now(UTC))

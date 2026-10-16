@@ -63,7 +63,14 @@ class MeOut(BaseModel):
 
 class AdoptIn(BaseModel):
     breed: str = Field(examples=["cetus"], description="An id from `GET /breeds`.")
-    name: str = Field(examples=["Aura"], description="Up to 30 characters.")
+    name: str | None = Field(
+        default=None,
+        examples=["Aura"],
+        description=(
+            "Up to 30 characters. Leave out to get a random one. The adoption page should "
+            "prefill the field from `GET /names/random` and let the user edit it."
+        ),
+    )
 
 
 class BreedOut(BaseModel):

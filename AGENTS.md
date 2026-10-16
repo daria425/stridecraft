@@ -11,7 +11,7 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 
 ### Character
 
-- Adopt one **strider** (journal/0007) once at the start by picking a **breed** (Greek-mythology creatures, e.g. Cetus; 3D models, a pre-made set of ~4-6 to begin with) and a **name** (a random suggestion from `server/static/names_src.json`, editable, required). Assets are static. Outfits are pre-made variants.
+- Adopt one **strider** (journal/0007) once at the start by picking a **breed** (Greek-mythology creatures, e.g. Cetus; 3D models, a pre-made set of ~4-6 to begin with) and a **name** (a random suggestion from `server/static/names_src.json`, editable, optional: the API picks a random one if none is sent). Assets are static. Outfits are pre-made variants.
 - All striders start with **identical stats**; the difference is looks only. Training makes them diverge (fast, enduring, hilly...).
 - **No character level / XP.**
 - **The strider is not you** (the Pokemon/Palworld principle): a strider has its own powers and is unrelated to the trainer's skill. It gets stronger by training alongside you. So every stat starts from the strider's own base values, and **only runs after the user's sign-up date count** toward any stat. Runs before sign-up only serve as the baseline (e.g. the 6-week average pace for Speed). "Sign-up" is **strider adoption** (`adopted_at` on the strider, journal/0005), not the Strava login. Onboarding: no strider yet means redirect to adoption (pick breed and name). Persistence (SQLite + SQLAlchemy, frozen per-run gains, wipe-and-rebuild instead of migrations, sync) is in journal/0006; the flow is in `docs/data-flow.md`.

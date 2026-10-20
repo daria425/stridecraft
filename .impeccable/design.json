@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T00:00:00Z",
+  "title": "Design System: Stridecraft",
+  "extensions": {
+    "colorMeta": {
+      "indigo-night": { "role": "neutral", "displayName": "Indigo Night", "canonical": "#0a0b20", "tonalRamp": ["#04040f", "#0a0b20", "#14173f", "#232766", "#3d4190", "#6b6fb8", "#a4a7d8", "#dcddf2"] },
+      "indigo-plate": { "role": "neutral", "displayName": "Indigo Plate", "canonical": "#14173f", "tonalRamp": ["#070818", "#0a0b20", "#14173f", "#1d2057", "#2e3381", "#5559a8", "#9195cf", "#d0d2ee"] },
+      "indigo-void": { "role": "neutral", "displayName": "Indigo Void", "canonical": "#070818", "tonalRamp": ["#030309", "#070818", "#0a0b20", "#14173f", "#232766", "#3d4190", "#6b6fb8", "#a4a7d8"] },
+      "indigo-glow": { "role": "neutral", "displayName": "Indigo Glow", "canonical": "#1d2057", "tonalRamp": ["#0a0b20", "#14173f", "#1d2057", "#2e3381", "#4a4fa6", "#7478c4", "#a9acdd", "#dcddf2"] },
+      "ivory-gold": { "role": "neutral", "displayName": "Ivory Gold", "canonical": "#efe7cf", "tonalRamp": ["#4a4637", "#6e6951", "#928b6c", "#b5ad8a", "#d0c8a8", "#efe7cf", "#f6f0de", "#fcf9ee"] },
+      "lavender-mist": { "role": "neutral", "displayName": "Lavender Mist", "canonical": "#a8a5c8", "tonalRamp": ["#2a2940", "#3f3e5f", "#58567e", "#7371a0", "#8e8bb8", "#a8a5c8", "#c6c4de", "#e4e3f0"] },
+      "antique-gold": { "role": "primary", "displayName": "Antique Gold", "canonical": "#cfa84e", "tonalRamp": ["#3a2e12", "#5c4a1e", "#8f7435", "#b08f3e", "#cfa84e", "#dcbd77", "#e8d3a2", "#f5ebd0"] },
+      "antique-gold-dim": { "role": "primary", "displayName": "Antique Gold Dim", "canonical": "#8f7435", "tonalRamp": ["#2a210d", "#443616", "#5c4a1e", "#745d28", "#8f7435", "#a98d4a", "#c4a96f", "#ddc9a0"] },
+      "antique-gold-faint": { "role": "primary", "displayName": "Antique Gold Faint", "canonical": "rgb(207 168 78 / 0.28)", "tonalRamp": ["rgb(207 168 78 / 0.05)", "rgb(207 168 78 / 0.1)", "rgb(207 168 78 / 0.18)", "rgb(207 168 78 / 0.28)", "rgb(207 168 78 / 0.4)", "rgb(207 168 78 / 0.55)", "rgb(207 168 78 / 0.75)", "rgb(207 168 78 / 1)"] },
+      "vermilion": { "role": "secondary", "displayName": "Vermilion", "canonical": "#e0674d", "tonalRamp": ["#3d1710", "#6a281c", "#963a29", "#c04f38", "#e0674d", "#e98a74", "#f1ad9d", "#f9d4cb"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Strider name on the banner (Forum)." },
+      "figure": { "displayName": "Figure", "purpose": "Stat values, tabular lining numerals (Forum)." },
+      "body": { "displayName": "Body", "purpose": "Lore, subtitles, messages (Alegreya Sans)." },
+      "label": { "displayName": "Label", "purpose": "Stat names, form labels, primary button, top bar (Forum uppercase, tracked)." }
+    },
+    "shadows": [
+      { "name": "frame-lift", "value": "0 1.25rem 2.5rem -1rem rgb(0 0 0 / 0.7)", "purpose": "Under every gilt frame." },
+      { "name": "slot-well", "value": "inset 0 0 2.5rem rgb(0 0 0 / 0.55)", "purpose": "Framed creature slot." },
+      { "name": "legibility", "value": "0 1px 6px #000", "purpose": "Text shadow for the sync line over the scene." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Button state transitions (0.2s) and ring draw-in (1.8s)." },
+      { "name": "sigil-turn", "value": "240s linear infinite", "purpose": "Slow rotation of the ring tick marks; disabled under reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "desktop", "value": "62rem" },
+      { "name": "banner-padding", "value": "40rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single filled gold action per screen.",
+      "html": "<button class=\"ds-btn-primary\">Adopt</button>",
+      "css": ".ds-btn-primary { font-family: var(--font-display, Forum, Georgia, serif); letter-spacing: 0.18em; text-transform: uppercase; background: #cfa84e; color: #0a0b20; border: 1px solid #cfa84e; padding: 0.6rem 1.25rem; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { background: #efe7cf; border-color: #efe7cf; } .ds-btn-primary:focus-visible { outline: 2px solid #cfa84e; outline-offset: 3px; } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default secondary control: gold hairline, fills on hover.",
+      "html": "<button class=\"ds-btn\">Log out</button>",
+      "css": ".ds-btn { font: inherit; color: #cfa84e; background: transparent; border: 1px solid #8f7435; padding: 0.35rem 0.9rem; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1), color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { background: #cfa84e; color: #0a0b20; } .ds-btn:focus-visible { outline: 2px solid #cfa84e; outline-offset: 3px; } .ds-btn:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Gilt Frame",
+      "kind": "card",
+      "refersTo": "gilt-frame",
+      "description": "Hairline plate with notched corner brackets; holds the banner and stats.",
+      "html": "<div class=\"ds-frame\"><svg class=\"ds-c ds-tl\" viewBox=\"0 0 24 24\"><path d=\"M1 23 V6 L6 1 H23\" fill=\"none\" stroke=\"#cfa84e\" stroke-width=\"1.4\"/><path d=\"M7 9 L9 7 L11 9 L9 11 Z\" fill=\"#cfa84e\"/></svg><svg class=\"ds-c ds-br\" viewBox=\"0 0 24 24\"><path d=\"M1 23 V6 L6 1 H23\" fill=\"none\" stroke=\"#cfa84e\" stroke-width=\"1.4\"/><path d=\"M7 9 L9 7 L11 9 L9 11 Z\" fill=\"#cfa84e\"/></svg>Content on a plate</div>",
+      "css": ".ds-frame { position: relative; padding: 1rem; color: #efe7cf; background: linear-gradient(160deg, rgb(29 32 87 / 0.88), rgb(10 11 32 / 0.92)); border: 1px solid rgb(207 168 78 / 0.28); outline: 1px solid rgb(207 168 78 / 0.28); outline-offset: -7px; box-shadow: 0 1.25rem 2.5rem -1rem rgb(0 0 0 / 0.7); } .ds-c { position: absolute; width: 1.5rem; height: 1.5rem; } .ds-tl { top: -1px; left: -1px; } .ds-br { bottom: -1px; right: -1px; transform: scale(-1); }"
+    },
+    {
+      "name": "Stat Plaque",
+      "kind": "custom",
+      "refersTo": "stat-plaque-value",
+      "description": "Engraved label over a tabular figure.",
+      "html": "<div class=\"ds-stat\"><span class=\"ds-stat-label\">Speed</span><span class=\"ds-stat-value\">10.42</span></div>",
+      "css": ".ds-stat { display: grid; padding: 0.5rem 1rem; border-bottom: 1px solid rgb(207 168 78 / 0.28); } .ds-stat-label { font-family: Forum, Georgia, serif; font-size: 0.8125rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a8a5c8; } .ds-stat-value { font-family: Forum, Georgia, serif; font-size: 2.25rem; line-height: 1.1; color: #efe7cf; font-variant-numeric: tabular-nums lining-nums; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "text-input",
+      "description": "Sunken indigo well with gold-dim hairline, used for the strider name.",
+      "html": "<label class=\"ds-label\">Name<input class=\"ds-input\" value=\"Argos\"></label>",
+      "css": ".ds-label { display: grid; gap: 0.25rem; font-family: Forum, Georgia, serif; font-size: 0.8125rem; letter-spacing: 0.18em; text-transform: uppercase; color: #a8a5c8; } .ds-input { font: inherit; font-size: 1.25rem; letter-spacing: 0; text-transform: none; color: #efe7cf; background: #070818; border: 1px solid #8f7435; padding: 0.5rem 0.75rem; } .ds-input:focus-visible { outline: 2px solid #cfa84e; outline-offset: 0; }"
+    },
+    {
+      "name": "Ornamental Divider",
+      "kind": "custom",
+      "refersTo": "gilt-frame",
+      "description": "Hairline with a diamond between two crescents, under the name.",
+      "html": "<svg class=\"ds-div\" viewBox=\"0 0 320 16\" width=\"220\" height=\"16\"><g stroke=\"#8f7435\" stroke-width=\"1\" fill=\"none\"><path d=\"M0 8 H130\"/><path d=\"M190 8 H320\"/><path d=\"M144 3 a6 6 0 0 0 0 10\"/><path d=\"M176 3 a6 6 0 0 1 0 10\"/></g><path d=\"M160 1 L167 8 L160 15 L153 8 Z\" fill=\"#cfa84e\"/></svg>",
+      "css": ".ds-div { display: block; }"
+    },
+    {
+      "name": "Chevron Button",
+      "kind": "button",
+      "refersTo": "chevron-button",
+      "description": "Round previous/next control for the breed picker.",
+      "html": "<button class=\"ds-chev\" aria-label=\"Next\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 5 L16 12 L9 19\"/></svg></button>",
+      "css": ".ds-chev { width: 2.75rem; height: 2.75rem; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgb(10 11 32 / 0.7); color: #cfa84e; border: 1px solid #8f7435; cursor: pointer; transition: background-color 0.2s cubic-bezier(0.16,1,0.3,1), color 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-chev svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; } .ds-chev:hover { background: #cfa84e; color: #0a0b20; } .ds-chev:focus-visible { outline: 2px solid #cfa84e; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Gilt Grimoire",
+    "overview": "A character sheet in an alchemist's gilt frame. Deep indigo ground, antique gold line work, pale ivory-gold text. The strider is the only subject: it stands on a summoning circle lying on the floor of a full-screen stage, and every panel is a hairline-gold plate floating over that scene. Numbers are set like engraved instruments, in a classical display face with tabular lining figures.\n\nThe mood is calm and rewarding, never loud. Nothing in the product decays, so nothing in the interface alarms; the one warning colour exists only for errors. Gold is line work and one filled action, not a surface colour. The world is recognisable with content removed by two things: the notched-corner frame and the sigil ring.\n\nPhone and desktop are equal. Phone stacks bar, name plate, scene, then a compact 2x2 stat strip; desktop (62rem and up) moves the stats to a 22rem right column beside the scene.",
+    "keyCharacteristics": [
+      "Dark only (color-scheme: dark); indigo glow pooled behind the scene, faint gold bloom at the lower left.",
+      "Hairline gilt frames with notched corner brackets; ornamental divider (diamond between two crescents).",
+      "Sigil ring: circles, a hexagram, and a slowly turning tick ring, drawn in on load.",
+      "Two faces only: Forum for display, labels and figures; Alegreya Sans for reading text.",
+      "Square-cornered controls; the only round shapes are the ring, the creature slot and the chevron buttons."
+    ],
+    "rules": [
+      { "name": "The Gold Is Line Rule", "body": "Gold draws edges, rules and the single filled action. It is never a large background fill.", "section": "colors" },
+      { "name": "The One Alarm Rule", "body": "Vermilion is the only state colour and only marks errors. Success has no colour of its own; it is calm text.", "section": "colors" },
+      { "name": "The Engraved Numerals Rule", "body": "Every number that reports progress uses Forum with tabular lining figures, so columns of stats align.", "section": "typography" },
+      { "name": "The Plate Over Scene Rule", "body": "Panels are translucent plates over the scene, never opaque cards; the ring and glow must stay visible around them.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do draw edges with hairline gold (1px at faint, dim or full strength) and corner brackets.",
+      "Do set all progress numbers in Forum with tabular lining numerals.",
+      "Do place panels as translucent plates over the stage so the ring stays visible.",
+      "Do keep copy and state calm; vermilion only for errors.",
+      "Do read colours from the custom properties in web/src/styles/tokens.css; add new values there first.",
+      "Do honour prefers-reduced-motion for any new looping or drawing animation."
+    ],
+    "donts": [
+      "Don't fill large areas with gold or use glossy, bevelled gold ornament.",
+      "Don't build a dark card grid with a neon accent; panels are framed plates, not cards.",
+      "Don't round control corners; circles are reserved for the ring, slot and chevron buttons.",
+      "Don't introduce a second state colour; success stays uncoloured."
+    ]
+  }
+}

@@ -82,7 +82,9 @@ button:disabled {
   background: var(--color-gold-dim);
 }
 
-button.primary {
+button.primary,
+a.primary {
+  display: inline-block;
   font-family: var(--font-display);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -91,7 +93,8 @@ button.primary {
   border-color: var(--color-gold);
   padding: 0.6rem 1.25rem;
 }
-button.primary:hover:not(:disabled) {
+button.primary:hover:not(:disabled),
+a.primary:hover {
   background: var(--color-text);
   border-color: var(--color-text);
 }

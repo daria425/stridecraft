@@ -1,0 +1,29 @@
+/* The seal: a face-on sigil ring with the one action at its centre. */
+.login {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+}
+.login__banner {
+  width: min(100%, 34rem);
+}
+.login__seal {
+  position: relative;
+  width: min(100%, 26rem);
+}
+.login__cta {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52%;
+  text-align: center;
+  text-decoration: none;
+}
+.login__error {
+  margin: 0;
+  max-width: 34rem;
+  text-align: center;
+  color: var(--color-danger);
+}

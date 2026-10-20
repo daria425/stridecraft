@@ -21,3 +21,10 @@
     padding: var(--space-4);
   }
 }
+
+.scene--message {
+  place-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  color: var(--color-muted);
+  text-align: center;
+}

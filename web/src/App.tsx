@@ -26,6 +26,7 @@ export default function App() {
           </Route>
           {import.meta.env.DEV && <Route path="/dev/picker" element={<PickerSandbox />} />}
           {import.meta.env.DEV && <Route path="/dev/adopt" element={<AdoptSandbox />} />}
+          {import.meta.env.DEV && <Route path="/dev/login" element={<LoginPage />} />}
           {import.meta.env.DEV && <Route path="/dev/dashboard" element={<DashboardSandbox />} />}
         </Routes>
       </BrowserRouter>

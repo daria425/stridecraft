@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAdopt, useBreeds, useRandomName } from '../../api/queries'
 import { GiltFrame } from '../../components/GiltFrame'
+import { SceneMessage } from '../../components/SceneMessage'
 import { BreedPicker } from './BreedPicker'
 import '../../components/scene.css'
 import './adopt.css'
@@ -23,11 +24,11 @@ export function AdoptPage() {
     }
   }, [randomName])
 
-  if (breeds.isPending) return <AdoptMessage>Loading breeds...</AdoptMessage>
+  if (breeds.isPending) return <SceneMessage>Loading breeds...</SceneMessage>
   if (breeds.isError)
-    return <AdoptMessage>Could not load breeds. Try again in a moment.</AdoptMessage>
+    return <SceneMessage>Could not load breeds. Try again in a moment.</SceneMessage>
   const chosen = breedId ?? breeds.data[0]?.id
-  if (!chosen) return <AdoptMessage>There are no breeds to adopt yet.</AdoptMessage>
+  if (!chosen) return <SceneMessage>There are no breeds to adopt yet.</SceneMessage>
 
   return (
     <main className="scene adopt">
@@ -57,14 +58,6 @@ export function AdoptPage() {
           {adopt.error && <p role="alert">{adopt.error.message}</p>}
         </form>
       </GiltFrame>
-    </main>
-  )
-}
-
-function AdoptMessage({ children }: { children: string }) {
-  return (
-    <main className="scene adopt adopt--message">
-      <p>{children}</p>
     </main>
   )
 }

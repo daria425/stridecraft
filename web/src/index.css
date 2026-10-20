@@ -1,0 +1,111 @@
+@import '@fontsource/forum/400.css';
+@import '@fontsource/alegreya-sans/400.css';
+@import '@fontsource/alegreya-sans/500.css';
+@import '@fontsource/alegreya-sans/700.css';
+@import './styles/tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--color-gold-dim) var(--color-bg-sunken);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--color-text);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 38%, var(--glow) 0%, transparent 70%),
+    radial-gradient(circle at 12% 88%, rgb(207 168 78 / 0.07), transparent 40%), var(--color-bg);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-wrap: balance;
+  margin: 0;
+}
+
+a {
+  color: var(--color-gold);
+  text-underline-offset: 0.25em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: var(--color-gold);
+  background: transparent;
+  border: 1px solid var(--color-gold-dim);
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+button:hover:not(:disabled) {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-sunken);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-dim);
+}
+
+button.primary {
+  font-family: var(--font-display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: var(--color-gold);
+  color: var(--color-bg);
+  border-color: var(--color-gold);
+  padding: 0.6rem 1.25rem;
+}
+button.primary:hover:not(:disabled) {
+  background: var(--color-text);
+  border-color: var(--color-text);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

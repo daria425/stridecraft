@@ -1,0 +1,31 @@
+.stage {
+  position: absolute;
+  inset: 0;
+}
+.stage__floor {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) perspective(60rem) rotateX(72deg);
+  transform-origin: 50% 100%;
+  opacity: 0.85;
+}
+/* Warm light pooled on the floor under the circle. */
+.stage__floor::before {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(ellipse, rgb(207 168 78 / 0.18), transparent 65%);
+}
+.stage__floor > * {
+  position: relative;
+}
+.stage__floor {
+  width: 120vw;
+  bottom: 33%;
+}
+@media (min-width: 62rem) {
+  .stage__floor {
+    width: clamp(16rem, calc(100vw - 48rem), 52rem);
+    bottom: 6%;
+  }
+}

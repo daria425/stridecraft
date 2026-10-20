@@ -1,0 +1,23 @@
+/* The picker joins its parent's grid (see adopt.css) so the page can place the pieces. */
+.breed-picker {
+  display: contents;
+}
+.breed-picker__banner {
+  grid-area: banner;
+  justify-self: center;
+  width: min(100%, 34rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+.breed-picker__lore {
+  grid-area: lore;
+  align-self: start;
+  max-height: 32svh;
+  overflow-y: auto;
+}
+.breed-picker__lore p {
+  margin: 0;
+  max-width: 65ch;
+}

@@ -1,0 +1,56 @@
+/* Phone first: bar, banner, the scene, then a compact stat strip. Desktop moves stats right. */
+.dashboard {
+  grid-template-areas: 'bar' 'banner' '.' 'stats';
+  grid-template-rows: auto auto 1fr auto;
+}
+.dashboard__bar {
+  grid-area: bar;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-muted);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dashboard__bar button {
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-color: var(--color-gold-faint);
+  background: rgb(10 11 32 / 0.6);
+}
+.dashboard__banner {
+  grid-area: banner;
+  justify-self: center;
+  width: min(100%, 38rem);
+}
+.dashboard__stats {
+  grid-area: stats;
+  align-self: end;
+}
+.dashboard__stats-frame {
+  padding: var(--space-2);
+}
+.dashboard__sync {
+  margin: var(--space-2) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-label);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px #000;
+}
+.dashboard__sync--failed {
+  color: var(--color-danger);
+}
+@media (min-width: 62rem) {
+  .dashboard {
+    grid-template-areas:
+      'bar bar'
+      'banner banner'
+      '. stats';
+    grid-template-rows: auto auto 1fr;
+  }
+  .dashboard__stats {
+    align-self: start;
+  }
+}

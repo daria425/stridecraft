@@ -1,0 +1,23 @@
+/* Shared page layout for a full-screen scene: the stage behind, panels floating over it.
+ * Pages set grid-template-areas; the desktop column split lives here. */
+.scene {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3);
+  overflow: hidden;
+}
+.scene > * {
+  position: relative;
+}
+.scene .stage {
+  position: absolute;
+}
+@media (min-width: 62rem) {
+  .scene {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    padding: var(--space-4);
+  }
+}

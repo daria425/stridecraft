@@ -1,0 +1,33 @@
+/* Design tokens: the only place the look is defined. Gilt Grimoire: gold line work on deep indigo. */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+
+  --font-display: 'Forum', 'Trajan Pro', Georgia, serif;
+  --font-body: 'Alegreya Sans', 'Gill Sans', system-ui, sans-serif;
+
+  --color-bg: #0a0b20;
+  --color-bg-raised: #14173f;
+  --color-bg-sunken: #070818;
+  --color-text: #efe7cf;
+  --color-muted: #a8a5c8;
+  --color-gold: #cfa84e;
+  --color-gold-dim: #8f7435;
+  --color-gold-faint: rgb(207 168 78 / 0.28);
+  --color-line: var(--color-gold-dim);
+  --color-danger: #e0674d;
+
+  --text-label: 0.8125rem;
+  --text-body: 1.0625rem;
+  --text-name: clamp(1.75rem, 1.3rem + 2.6vw, 3.5rem);
+  --text-figure: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+
+  --plate: linear-gradient(160deg, rgb(29 32 87 / 0.88), rgb(10 11 32 / 0.92));
+  --glow: #1d2057;
+
+  --slot-size: 16rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}

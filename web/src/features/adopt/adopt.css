@@ -1,0 +1,62 @@
+/* Phone first: banner, the scene, lore, then the name form. Desktop puts lore and form right. */
+.adopt {
+  grid-template-areas: 'banner' '.' 'lore' 'form';
+  grid-template-rows: auto 1fr auto auto;
+}
+.adopt .stage__floor {
+  bottom: 50%;
+}
+.adopt__form {
+  grid-area: form;
+}
+.adopt__form form {
+  display: grid;
+  gap: var(--space-3);
+}
+.adopt__form label {
+  display: grid;
+  gap: var(--space-1);
+  font-family: var(--font-display);
+  font-size: var(--text-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.adopt__form input {
+  font: inherit;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-gold-dim);
+  padding: 0.5rem 0.75rem;
+}
+.adopt__form input:focus-visible {
+  outline-offset: 0;
+}
+.adopt__form p[role='alert'] {
+  margin: 0;
+  color: var(--color-danger);
+}
+.adopt--message {
+  place-items: center;
+  grid-template-areas: none;
+  grid-template-rows: none;
+  color: var(--color-muted);
+}
+@media (min-width: 62rem) {
+  .adopt {
+    grid-template-areas:
+      'banner banner'
+      '. lore'
+      '. form';
+    grid-template-rows: auto 1fr auto;
+  }
+  .adopt .stage__floor {
+    bottom: 6%;
+  }
+  .adopt__form {
+    align-self: end;
+  }
+}

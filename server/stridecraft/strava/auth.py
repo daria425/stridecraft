@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -8,6 +9,8 @@ import httpx
 
 from stridecraft.config import StravaConfig
 from stridecraft.errors import NotAuthorizedError, StravaError
+
+logger = logging.getLogger(__name__)
 
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 TOKEN_URL = "https://www.strava.com/oauth/token"
@@ -73,6 +76,7 @@ class StravaAuth:
         if tokens is None:
             raise NotAuthorizedError("Strava access has not been set up yet")
         if tokens.is_expired():
+            logger.info("Strava access token expired; refreshing it")
             tokens = self.request_tokens(
                 {"grant_type": "refresh_token", "refresh_token": tokens.refresh_token}
             )

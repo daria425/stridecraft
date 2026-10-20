@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from stridecraft.api.app import create_app
 from stridecraft.config import AppConfig, StravaConfig
+from stridecraft.content.models import Breed
 from stridecraft.db.database import IN_MEMORY_URL, Database
 from stridecraft.errors import NotAuthorizedError
 from stridecraft.strava.auth import Tokens
@@ -37,10 +38,16 @@ def login():
     return FakeLogin()
 
 
+def build_app(login, **config_overrides):
+    config = AppConfig(
+        "s" * 32, Fernet.generate_key().decode(), FRONTEND, "http://api.test", **config_overrides
+    )
+    return create_app(config, StravaConfig("id", "secret"), Database(IN_MEMORY_URL), login)
+
+
 @pytest.fixture
 def app(login):
-    config = AppConfig("s" * 32, Fernet.generate_key().decode(), FRONTEND, "http://api.test")
-    return create_app(config, StravaConfig("id", "secret"), Database(IN_MEMORY_URL), login)
+    return build_app(login)
 
 
 @pytest.fixture
@@ -205,6 +212,44 @@ def test_syncing_needs_a_strider_and_cannot_overlap(app, client, login, importer
     assert response.json()["code"] == "sync_in_progress"
 
 
+def test_starting_over_is_a_dev_tool_that_is_off_by_default(client, login, importer):
+    log_in(client, login)
+    adopt(client)
+    assert client.delete("/me/strider").status_code == 405  # the route is not registered
+
+
+@pytest.fixture
+def dev_client(login):
+    app = build_app(login, dev_tools=True)
+    app.state.stridecraft.importer = FakeImporter(app)
+    with TestClient(app, base_url="http://api.test", follow_redirects=False) as client:
+        client.app_state = app.state.stridecraft
+        yield client
+
+
+def test_starting_over_removes_the_strider_and_runs_but_keeps_the_login(dev_client, login):
+    log_in(dev_client, login)
+    assert dev_client.delete("/me/strider").json()["code"] == "no_strider"
+
+    adopt(dev_client)
+    assert dev_client.delete("/me/strider").status_code == 204
+    me = dev_client.get("/me")
+    assert me.status_code == 200
+    assert me.json()["strider"] is None
+    assert dev_client.get("/me/sync").json()["last_synced_at"] is None
+
+    assert adopt(dev_client, name="Again").status_code == 201
+    assert dev_client.get("/me/sync").json()["last_result"]["new_runs"] == 1
+
+
+def test_starting_over_waits_for_a_running_import(dev_client, login):
+    log_in(dev_client, login)
+    adopt(dev_client)
+    dev_client.app_state.jobs.start(dev_client.get("/me").json()["id"])
+    assert dev_client.delete("/me/strider").status_code == 409
+    assert dev_client.get("/me").json()["strider"] is not None
+
+
 def test_two_users_never_see_each_others_striders(client, login, importer):
     log_in(client, login, athlete_id=111)
     adopt(client, name="Ada's")
@@ -221,6 +266,15 @@ def test_two_users_never_see_each_others_striders(client, login, importer):
 def test_breeds_and_a_suggested_name_are_public(client):
     assert any(b["id"] == "cetus" for b in client.get("/breeds").json())
     assert client.get("/names/random").json()["name"]
+
+
+def test_breed_model_urls_come_from_the_asset_base(app, client):
+    app.state.stridecraft.content.breeds["modelled"] = Breed(
+        id="modelled", name="M", description="d", model="breeds/modelled.glb"
+    )
+    breeds = {b["id"]: b for b in client.get("/breeds").json()}
+    assert breeds["cetus"]["model_url"] is None
+    assert breeds["modelled"]["model_url"] == "http://api.test/assets/breeds/modelled.glb"
 
 
 def test_the_openapi_spec_builds_with_clean_operation_ids(app):

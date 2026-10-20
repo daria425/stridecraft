@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -10,6 +11,8 @@ from stridecraft.errors import NoStriderError, RateLimitError
 from stridecraft.models import Run, Strider, User
 from stridecraft.stats.stats_calculator import StatConverter
 from stridecraft.strava.client import StravaClient
+
+logger = logging.getLogger(__name__)
 
 SOURCE = "strava"
 # Best efforts need one detail request per run, and Strava allows ~100 requests per 15 minutes.
@@ -54,6 +57,12 @@ class SyncService:
         started = self.clock()
         known = self.runs.known_source_ids(user.id, SOURCE)
         after = self.fetch_start(user, strider.adopted_at)
+        logger.info(
+            "Sync started for user %s: listing Strava runs since %s (%d already stored)",
+            user.id,
+            after.isoformat(),
+            len(known),
+        )
         # Oldest first: each run's baseline needs the runs before it already stored.
         listing = self.client.new_summaries(
             int(after.timestamp()), known, before_epoch=int(started.timestamp()) + 1
@@ -63,6 +72,12 @@ class SyncService:
             key=lambda pair: pair[1].start_time,
         )
         detail_ids = self.newest_gps_ids(found, strider.adopted_at)
+        logger.info(
+            "User %s: %d new runs listed, fetching best efforts for %d",
+            user.id,
+            len(found),
+            len(detail_ids),
+        )
 
         history = self.runs.history(user.id)
         baseline = detailed = 0
@@ -75,7 +90,17 @@ class SyncService:
 
         self.users.mark_synced(user.id, started)
         self.session.commit()
-        return SyncResult(len(found), baseline, detailed, listing.truncated)
+        result = SyncResult(len(found), baseline, detailed, listing.truncated)
+        logger.info(
+            "Sync finished for user %s: %d new runs (%d before adoption: baseline only; "
+            "%d with best efforts)%s",
+            user.id,
+            result.new_runs,
+            result.baseline_runs,
+            result.detailed_runs,
+            "; too many runs, the oldest were left out" if result.truncated else "",
+        )
+        return result
 
     @staticmethod
     def newest_gps_ids(found: list[tuple[dict, Run]], adopted_at: datetime) -> set[int]:
@@ -92,6 +117,7 @@ class SyncService:
         try:
             return Run.from_strava(self.client.activity_detail(summary["id"]), user_id)
         except RateLimitError:
+            logger.warning("Strava rate limit hit; skipping best efforts for the rest of this sync")
             detail_ids.clear()  # stop asking: the stats do not depend on best efforts
             return run
 

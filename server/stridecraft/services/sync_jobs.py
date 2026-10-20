@@ -5,6 +5,7 @@ restart the state is just "idle" and the next sync catches up. Imports run one a
 all users because Strava's rate limit belongs to the app, not to a user.
 """
 
+import logging
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -12,6 +13,8 @@ from enum import StrEnum
 
 from stridecraft.errors import StridecraftError, SyncInProgressError
 from stridecraft.services.sync import SyncResult
+
+logger = logging.getLogger(__name__)
 
 
 class SyncState(StrEnum):
@@ -45,17 +48,23 @@ class SyncJobs:
                 raise SyncInProgressError("An import is already running")
             self.statuses[user_id] = SyncStatus(SyncState.RUNNING, previous.result)
 
+    def forget(self, user_id: int) -> None:
+        """Drop the remembered outcome (the user started over), unless an import is running."""
+        with self.status_lock:
+            if self.statuses.get(user_id, SyncStatus()).state is SyncState.RUNNING:
+                raise SyncInProgressError("An import is running; wait for it to finish")
+            self.statuses.pop(user_id, None)
+
     def run(self, user_id: int, import_runs: Callable[[], SyncResult]) -> None:
-        """Do the import (in a background task) and record the outcome. Never raises."""
+        """Do the import (in a background task) and record the outcome. Never raises; a failure is
+        logged with its traceback."""
         try:
             with self.strava_lock:
                 result = import_runs()
         except Exception as error:
-            expected = isinstance(error, StridecraftError)
-            message = str(error) if expected else "The import failed"
+            logger.exception("Import failed for user %s", user_id)
+            message = str(error) if isinstance(error, StridecraftError) else "The import failed"
             self.finish(user_id, SyncStatus(SyncState.FAILED, self.status(user_id).result, message))
-            if not expected:
-                raise  # a bug: let it reach the logs
         else:
             self.finish(user_id, SyncStatus(SyncState.IDLE, result))
 

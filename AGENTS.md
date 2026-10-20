@@ -6,8 +6,8 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 
 - **Audience:** just the author first. Keep a `user_id` in the schema so multi-user later isn't a rewrite.
 - **Data source:** Strava API (OAuth + webhook/sync). Model a generic `Run` so other sources can plug in later.
-- **Stack:** Python (FastAPI) server in `server/`, web frontend in `web/`.
-- **Content is data, not code:** skills, quests, bosses and outfits live in data files (author adds new ones over time): YAML, one file per entity in `server/content/`, validated by pydantic and loaded via `stridecraft.content.Content` (journal/0008).
+- **Stack:** Python (FastAPI) server in `server/`, web frontend in `web/` (Vite + React + TS, journal/0014; unstyled until the design pass).
+- **Content is data, not code:** skills, quests, bosses and outfits live in data files (author adds new ones over time): YAML, one file per entity in `server/content/`, validated by pydantic and loaded via `stridecraft.content.Content` (journal/0008). Binary assets (3D models) live in repo-root `assets/` and reach the frontend as URLs from the API (journal/0013); the frontend never reads the YAML.
 
 ### Character
 
@@ -70,7 +70,7 @@ This is a collaboration, not a hand-the-keys-over build. Specifically:
 - **Line length: 100.** Double quotes.
 - **Enforced via pre-commit hook** (`.pre-commit-config.yaml`, scoped to `server/`): `ruff check --fix` then `ruff format` run automatically on every commit. Installed once via `uv tool install pre-commit && pre-commit install`; after that it's automatic — don't reach for `--no-verify` to skip it.
 - Run manually any time: `cd server && uv run ruff check . && uv run ruff format .`
-- The `/web` frontend (later phase) gets its own eslint + prettier config when that phase starts — not set up yet since there's no frontend code.
+- The `/web` frontend uses oxlint (the Vite template's linter) + prettier (`npm run lint`, `npm run format`), plus `tsc` and vitest for the few logic tests.
 - No type checker yet (mypy) — revisit if untyped bugs actually start costing time.
 - Be pragmatic but functions should have clear names and do one thing, thats basic code quality
 - Don't prefix functions with \_, no reason, I just do not like it.
@@ -84,5 +84,5 @@ Current open items:
 
 - PBs and skills: best efforts are stored for the newest 50 runs, ready for the skills phase.
 - Base values: the strider's base values are still all 10, and breeds are looks only.
-- API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Not started: the web frontend, the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
+- API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Web frontend: first unstyled pass exists (login, adoption, dashboard; 3D is a placeholder square). Not started: the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
 - Packaging: server/content/ isn't in the wheel build yet.

@@ -2,13 +2,14 @@ from cryptography.fernet import Fernet
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from stridecraft.api.errors import handle_stridecraft_error
-from stridecraft.api.routers import auth, breeds, me
+from stridecraft.api.routers import auth, breeds, dev, me
 from stridecraft.api.state import AppState
 from stridecraft.api.strava_login import StravaLogin
-from stridecraft.config import AppConfig, StravaConfig
+from stridecraft.config import ASSETS_DIR, AppConfig, StravaConfig
 from stridecraft.content.registry import Content
 from stridecraft.db.database import Database
 from stridecraft.errors import StridecraftError
@@ -75,6 +76,11 @@ def create_app(
         allow_headers=["*"],
     )
     app.add_exception_handler(StridecraftError, handle_stridecraft_error)
+    # Dev convenience; in production ASSET_BASE_URL points at a CDN or static host (journal/0013).
+    if ASSETS_DIR.is_dir():
+        app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
     for router in (auth.router, me.router, breeds.router):
         app.include_router(router)
+    if config.dev_tools:
+        app.include_router(dev.router)
     return app

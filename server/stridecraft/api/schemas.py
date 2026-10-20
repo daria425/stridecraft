@@ -77,7 +77,7 @@ class BreedOut(BaseModel):
     id: str
     name: str
     description: str
-    model: str | None
+    model_url: str | None = Field(description="3D model URL, `null` if not made yet.")
 
 
 class NameOut(BaseModel):

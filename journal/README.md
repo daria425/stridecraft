@@ -14,3 +14,5 @@
 | [0010](0010-typed-errors-handled-at-the-top.md) | Expected errors are typed, UI-neutral, and caught at the top level | accepted | 2026-10-15 |
 | [0011](0011-scale-stat-constants-uniformly.md) | Scale all stat constants x20, uniformly | accepted | 2026-10-15 |
 | [0012](0012-rest-api-strava-login.md) | FastAPI REST API, "log in with Strava" via Authlib and a session cookie | accepted | 2026-10-15 |
+| [0013](0013-assets-shared-at-repo-root.md) | Binary assets live in a repo-root `assets/`, served by URL | accepted | 2026-10-16 |
+| [0014](0014-web-frontend-vite-react.md) | Vite + React SPA; sync on open and tab focus until the webhook | accepted | 2026-10-16 |

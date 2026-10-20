@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from stridecraft.api.deps import GameContent
+from stridecraft.api.deps import GameContent, State
 from stridecraft.api.schemas import BreedOut, NameOut
 from stridecraft.utils.names import random_name
 
@@ -8,9 +8,14 @@ router = APIRouter(tags=["adoption"])
 
 
 @router.get("/breeds", summary="Breeds that can be adopted")
-def list_breeds(content: GameContent) -> list[BreedOut]:
+def list_breeds(content: GameContent, state: State) -> list[BreedOut]:
     return [
-        BreedOut(id=b.id, name=b.name, description=b.description, model=b.model)
+        BreedOut(
+            id=b.id,
+            name=b.name,
+            description=b.description,
+            model_url=b.model and state.config.asset_url(b.model),
+        )
         for b in content.breeds.values()
     ]
 

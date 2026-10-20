@@ -1,4 +1,5 @@
 """Definitions of game content: static things authored in `server/content/`, not player state.
+Binary assets they point to live in `assets/` at the repo root.
 
 A file's name is its id (`breeds/cetus.yaml` is the breed "cetus"); the loader fills `id` in, so
 files never repeat it. Ids are what the database stores, so never rename or reuse one.
@@ -19,4 +20,4 @@ class ContentModel(BaseModel):
 class Breed(ContentModel):
     name: str
     description: str
-    model: str | None = None  # path to the 3D model under server/static/, once it exists
+    model: str | None = None  # path to the 3D model under assets/ (repo root), once it exists

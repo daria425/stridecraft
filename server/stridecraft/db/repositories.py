@@ -7,7 +7,7 @@ from dataclasses import asdict
 from datetime import datetime
 
 from cryptography.fernet import Fernet
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -75,6 +75,9 @@ class UserRepository:
     def mark_synced(self, user_id: int, synced_at: datetime) -> None:
         self.session.get(UserRow, user_id).last_synced_at = synced_at
 
+    def clear_synced(self, user_id: int) -> None:
+        self.session.get(UserRow, user_id).last_synced_at = None
+
     @staticmethod
     def to_user(row: UserRow | None) -> User | None:
         if row is None:
@@ -107,6 +110,9 @@ class StriderRepository:
         except IntegrityError as error:  # a double click got there first
             raise AlreadyAdoptedError("This user already has a strider") from error
         return Strider(row.id, row.user_id, row.breed, row.name, row.adopted_at)
+
+    def delete_for_user(self, user_id: int) -> None:
+        self.session.execute(delete(StriderRow).filter_by(user_id=user_id))
 
 
 class TokenRepository:
@@ -178,6 +184,12 @@ class RunRepository:
             )
         self.session.add(row)
         self.session.flush()
+
+    def delete_all(self, user_id: int) -> None:
+        """Every stored run of the user, with its gains."""
+        own_runs = select(RunRow.id).filter_by(user_id=user_id)
+        self.session.execute(delete(RunGainRow).where(RunGainRow.run_id.in_(own_runs)))
+        self.session.execute(delete(RunRow).filter_by(user_id=user_id))
 
     def gains(self, user_id: int) -> list[RunGains]:
         query = (

@@ -20,6 +20,9 @@ GET /me -> strider?
                      after adopted_at  -> processed like any synced run
 ```
 
+The dashboard also starts an import when it opens or the tab regains focus and the last one is
+over 10 minutes old (journal/0014); no button, until a webhook exists.
+
 Imports run one at a time across all users, because Strava's rate limits belong to the app.
 
 ## What a run is worth

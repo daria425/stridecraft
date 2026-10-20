@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import RedirectResponse
@@ -6,6 +8,8 @@ from stridecraft.api.deps import State
 from stridecraft.api.state import AppState
 from stridecraft.db.repositories import TokenRepository, UserRepository
 from stridecraft.strava.auth import Tokens
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -30,9 +34,11 @@ async def login(request: Request, state: State) -> RedirectResponse:
 async def callback(request: Request, state: State) -> RedirectResponse:
     outcome = await state.login.finish(request)
     if isinstance(outcome, str):
+        logger.info("Strava login did not complete: %s", outcome)
         return RedirectResponse(f"{state.config.frontend_url}?error={outcome}", status_code=302)
     athlete, tokens = outcome
     request.session["user_id"] = await run_in_threadpool(sign_in, state, athlete, tokens)
+    logger.info("User %s logged in (Strava athlete %s)", request.session["user_id"], athlete["id"])
     return RedirectResponse(state.config.frontend_url, status_code=302)
 
 

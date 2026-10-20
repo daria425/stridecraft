@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, BackgroundTasks
 
 from stridecraft.api.deps import CurrentUser, DbSession, GameContent, State
@@ -8,6 +10,8 @@ from stridecraft.errors import NoStriderError
 from stridecraft.models import Strider, User
 from stridecraft.services.adoption import AdoptionService
 from stridecraft.stats.stats_calculator import Stats
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/me", tags=["me"], responses=NEEDS_LOGIN)
 
@@ -56,6 +60,7 @@ def adopt(
 ) -> StriderOut:
     strider = AdoptionService(session, content).adopt(user, body.breed, body.name)
     session.commit()
+    logger.info("User %s adopted %s the %s", user.id, strider.name, strider.breed)
     state.jobs.start(user.id)
     background.add_task(state.jobs.run, user.id, lambda: state.importer.import_for(user.id))
     return strider_out(session, user, strider)
@@ -79,6 +84,7 @@ def start_sync(
 ) -> SyncStatusOut:
     if StriderRepository(session).get_for_user(user.id) is None:
         raise NoStriderError("Adopt a strider before syncing")
+    logger.info("User %s asked for a sync", user.id)
     state.jobs.start(user.id)
     background.add_task(state.jobs.run, user.id, lambda: state.importer.import_for(user.id))
     return SyncStatusOut.of(state.jobs.status(user.id), user)

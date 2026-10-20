@@ -5,6 +5,9 @@ from pathlib import Path
 # Game content definitions (YAML, one file per entity); see journal/0008.
 CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 
+# Binary game assets (3D models, portraits), shared with the frontend; see journal/0013.
+ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / "assets"
+
 # Where the SQLite database lives (data/ is gitignored); see journal/0006.
 DATABASE_PATH = Path(__file__).resolve().parent.parent / "data" / "stridecraft.db"
 
@@ -42,6 +45,13 @@ class AppConfig:
     token_encryption_key: str  # Fernet key; encrypts Strava tokens in the database
     frontend_url: str  # where the browser is sent after login, and the allowed CORS origin
     public_url: str  # where this API is reachable by the browser (Strava redirects back to it)
+    asset_base_url: str = ""  # where assets are served from; empty means this API's /assets
+    dev_tools: bool = False  # extra routes for trying onboarding again; never on in production
+
+    def asset_url(self, path: str) -> str:
+        """The browser URL of an asset, given its path relative to `assets/`."""
+        base = self.asset_base_url or f"{self.public_url}/assets"
+        return f"{base.rstrip('/')}/{path}"
 
     @classmethod
     def from_env(cls) -> "AppConfig":
@@ -51,6 +61,8 @@ class AppConfig:
                 os.environ["TOKEN_ENCRYPTION_KEY"],
                 os.environ.get("FRONTEND_URL", "http://localhost:5173"),
                 os.environ.get("PUBLIC_URL", "http://localhost:8000"),
+                os.environ.get("ASSET_BASE_URL", ""),
+                os.environ.get("DEV_TOOLS", "") == "1",
             )
         except KeyError as missing:
             raise SystemExit(f"Missing {missing} - see .env.example") from None

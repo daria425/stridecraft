@@ -143,7 +143,7 @@ A full-screen scene (`min-height: 100svh`, overflow hidden): the stage is absolu
 
 Spacing scale in use: 0.25, 0.5, 1, 2, 3rem. Breakpoint: one, at 62rem (desktop split to a content column plus a 22rem right column). Adoption mirrors the dashboard: banner on top, lore and name form in the right column on desktop, stacked below the scene on phone.
 
-The stage floor holds the ring, tilted with a 72 degree perspective rotation. On phone it is 120vw wide and sits about a third up from the bottom (halfway up on adoption); on desktop its width is clamp(16rem, 100vw - 48rem, 52rem), anchored 6% from the bottom. Stat plaques on phone are a 2x2 grid with hairlines between cells; on desktop a single column with a rotated-diamond glyph beside label and value.
+The stage floor and engraved ring are 3D geometry; the camera controls perspective and keeps the creature clear of the desktop stat column. The scene stays behind the interactive panels. Stat plaques on phone are a 2x2 grid with hairlines between cells; on desktop a single column with a rotated-diamond glyph beside label and value.
 
 ## Elevation & Depth
 
@@ -207,6 +207,5 @@ Void-indigo fill, 1px gold-dim border, 1.25rem Alegreya text in ivory, square; f
 ## Known Gaps (not design decisions)
 
 - The login page is not styled yet.
-- The 3D scene is a placeholder (a creature-slot label standing in for the canvas); its look is undecided.
-- Open finish-review items: on the adopt phone layout the placeholder label sits on the ring; the ring is small at 1024px; `stage.css` declares `.stage__floor` in two split rules.
+- The first 3D sanctuary preview renders the static Cetus asset (journal/0016). Rigging/idle animation, final environment art and actual device performance review remain.
 - A verdigris success colour and a Greek-key motif were deliberately not added; do not treat their absence as an omission to fix.

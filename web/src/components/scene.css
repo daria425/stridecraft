@@ -11,9 +11,11 @@
 }
 .scene > * {
   position: relative;
+  z-index: 1;
 }
 .scene .stage {
   position: absolute;
+  z-index: 0;
 }
 @media (min-width: 62rem) {
   .scene {

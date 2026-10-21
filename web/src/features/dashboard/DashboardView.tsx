@@ -9,6 +9,7 @@ export type DashboardViewProps = {
   trainer: string
   striderName: string
   breedName: string
+  breedId?: string
   adoptedOn: string
   modelUrl: string | null
   stats: Stats
@@ -22,7 +23,7 @@ export type DashboardViewProps = {
 export function DashboardView(props: DashboardViewProps) {
   return (
     <main className="scene dashboard">
-      <Stage modelUrl={props.modelUrl} label={props.striderName} />
+      <Stage modelUrl={props.modelUrl} label={props.striderName} breedId={props.breedId} />
 
       <header className="dashboard__bar">
         <span>{props.trainer}</span>

@@ -33,7 +33,7 @@ export function BreedPicker({
   const single = breeds.length < 2
   return (
     <section aria-label="Choose a breed" className="breed-picker">
-      <Stage modelUrl={breed.model_url} label={breed.name} />
+      <Stage modelUrl={breed.model_url} label={breed.name} breedId={breed.id} />
       <div className="breed-picker__banner">
         <ChevronButton
           direction="left"

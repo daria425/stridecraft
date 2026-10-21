@@ -3,6 +3,8 @@
   display: contents;
 }
 .breed-picker__banner {
+  position: relative;
+  z-index: 1;
   grid-area: banner;
   justify-self: center;
   width: min(100%, 34rem);
@@ -12,6 +14,8 @@
   gap: var(--space-2);
 }
 .breed-picker__lore {
+  position: relative;
+  z-index: 1;
   grid-area: lore;
   align-self: start;
   max-height: 32svh;

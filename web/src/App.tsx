@@ -7,6 +7,7 @@ import { DashboardPage } from './features/dashboard/DashboardPage'
 import { AdoptSandbox } from './dev/AdoptSandbox'
 import { DashboardSandbox } from './dev/DashboardSandbox'
 import { PickerSandbox } from './dev/PickerSandbox'
+import { CreatureSandbox } from './dev/CreatureSandbox'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ export default function App() {
           {import.meta.env.DEV && <Route path="/dev/adopt" element={<AdoptSandbox />} />}
           {import.meta.env.DEV && <Route path="/dev/login" element={<LoginPage />} />}
           {import.meta.env.DEV && <Route path="/dev/dashboard" element={<DashboardSandbox />} />}
+          {import.meta.env.DEV && <Route path="/dev/creature" element={<CreatureSandbox />} />}
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

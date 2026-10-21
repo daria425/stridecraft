@@ -84,5 +84,6 @@ Current open items:
 
 - PBs and skills: best efforts are stored for the newest 50 runs, ready for the skills phase.
 - Base values: the strider's base values are still all 10, and breeds are looks only.
-- API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Web frontend: first unstyled pass exists (login, adoption, dashboard; 3D is a placeholder square). Not started: the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
+- API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Web frontend: login, adoption and dashboard exist; `CreatureSlot` uses React Three Fiber with independent habitats (journal/0016). Cetus is previewable in the dev studio/dashboard/adoption, with a static textured GLB; production model-path wiring and rigging/idle animation remain. Not started: the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
+- Temporary additions under `docs/` stay git-ignored; lasting decisions belong in `journal/`.
 - Packaging: server/content/ isn't in the wheel build yet.

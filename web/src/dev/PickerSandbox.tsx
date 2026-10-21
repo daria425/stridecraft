@@ -4,14 +4,14 @@ import '../components/scene.css'
 import '../features/adopt/adopt.css'
 
 const FAKE_BREEDS: PickerBreed[] = [
-  { id: 'a', name: 'Cetus', description: 'A short description.', model_url: null },
+  { id: 'cetus', name: 'Cetus', description: 'A short description.', model_url: null },
   {
-    id: 'b',
+    id: 'chimera',
     name: 'Chimera',
     description: 'A much longer description '.repeat(12),
     model_url: null,
   },
-  { id: 'c', name: 'Pegasus', description: 'Another one.', model_url: null },
+  { id: 'pegasus', name: 'Pegasus', description: 'Another one.', model_url: null },
 ]
 
 /** Dev-only: iterate on the picker without Strava, a login or real breeds. */

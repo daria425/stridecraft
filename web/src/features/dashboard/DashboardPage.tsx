@@ -28,6 +28,7 @@ export function DashboardPage() {
       trainer={me.firstname ?? me.username}
       striderName={strider.name}
       breedName={breed?.name ?? strider.breed}
+      breedId={strider.breed}
       adoptedOn={new Date(strider.adopted_at).toLocaleDateString()}
       modelUrl={breed?.model_url ?? null}
       stats={strider.stats}

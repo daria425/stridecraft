@@ -3,6 +3,7 @@ import { GiltFrame } from '../components/GiltFrame'
 import { BreedPicker, type PickerBreed } from '../features/adopt/BreedPicker'
 import '../components/scene.css'
 import '../features/adopt/adopt.css'
+import { CETUS_TEXTURED_URL } from './cetus'
 
 const BREEDS: PickerBreed[] = [
   {
@@ -10,7 +11,7 @@ const BREEDS: PickerBreed[] = [
     name: 'Cetus',
     description:
       'Sea-monster of the deep, patient and enduring. It reads the long road the way it reads the tide.',
-    model_url: null,
+    model_url: CETUS_TEXTURED_URL,
   },
   {
     id: 'pegasus',

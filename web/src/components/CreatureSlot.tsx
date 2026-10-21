@@ -1,16 +1,23 @@
+import { lazy, Suspense } from 'react'
+import { SceneBoundary } from './creature/SceneBoundary'
+import { environmentForBreed, type EnvironmentId } from './creature/environments'
 import './creature-slot.css'
 
-/** The one place a strider's 3D model gets rendered. For now a dark well that says what will be
- * here; the 3D pass replaces the body and keeps the props. `stage` fills its container edge to
- * edge as a scene; the default is a fixed round well (breed picker). */
+const CreatureScene = lazy(() => import('./creature/CreatureScene'))
+
+/** The shared renderer. Model identity, habitat and layout are independent inputs. */
 export function CreatureSlot({
   modelUrl,
   label,
   stage = false,
+  breedId,
+  environment,
 }: {
   modelUrl: string | null
   label: string
   stage?: boolean
+  breedId?: string
+  environment?: EnvironmentId
 }) {
   return (
     <div
@@ -19,7 +26,18 @@ export function CreatureSlot({
       data-model-url={modelUrl ?? undefined}
       className={stage ? 'creature-slot creature-slot--stage' : 'creature-slot'}
     >
-      <span>{label}</span>
+      <SceneBoundary
+        key={`${modelUrl}:${environment ?? breedId}`}
+        fallback={<span className="creature-slot__note">3D preview is unavailable.</span>}
+      >
+        <Suspense fallback={<span className="creature-slot__note">Preparing the scene…</span>}>
+          <CreatureScene
+            modelUrl={modelUrl}
+            stage={stage}
+            environment={environment ?? environmentForBreed(breedId)}
+          />
+        </Suspense>
+      </SceneBoundary>
     </div>
   )
 }

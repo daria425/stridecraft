@@ -14,14 +14,18 @@ that is still undecided. This phase must leave the concurrently developed backen
 
 Use Three.js through React Three Fiber, with Drei for scene helpers. Separate model loading,
 camera/lighting and habitat components. Optional `breedId` selects a presentation-only habitat
-mapping: Cetus uses the sanctuary; other breeds use a neutral stage. The dev studio can
-override the environment. Keep the existing API-provided `modelUrl` interface and ADR-0013's
+mapping: Cetus uses the sanctuary; other breeds use a neutral stage. Keep the existing
+API-provided `modelUrl` interface and ADR-0013's
 asset ownership. The floor engraving belongs in 3D so perspective and occlusion agree.
 
-Dev-only Vite middleware serves the two existing Cetus GLBs at explicit preview URLs, without
-exposing the rest of the repo or bundling model files in production. Dashboard/adoption
-sandboxes use the textured export. Production still waits for the backend owner to set the
-existing breed model path to `breeds/cetus/cetus-texture.glb`; no server files change here.
+The user can drag to orbit, wheel/pinch to zoom, or use zoom/reset buttons. Keep the target
+on the creature, bound distance and elevation, and disable panning. Panels remain above the
+interactive canvas. Reduced motion disables camera inertia and automatic creature motion.
+
+The dashboard (`/`) and adoption (`/adopt`) load the model from the API's asset URL. Cetus's
+existing breed model path is `breeds/cetus/cetus-texture.glb`. The temporary `/dev/*` sandboxes,
+local file studio and Vite preview-asset middleware were removed on 2026-10-25 at the author's
+request; visual iteration now uses the actual application routes.
 
 ## Alternatives considered
 
@@ -34,12 +38,13 @@ existing breed model path to `breeds/cetus/cetus-texture.glb`; no server files c
 
 ## Consequences
 
-- One renderer serves the studio, adoption and dashboard; scenery can change independently.
+- One renderer serves adoption and dashboard; scenery can change independently.
 - The 3D bundle is lazy-loaded. Rendering caps pixel density, pauses continuous frames in hidden
   tabs, respects reduced motion, and keeps the location visible on a model failure.
 - `cetus-texture.glb` has embedded base-colour, metallic/roughness and normal images;
   `cetus-model.glb` is untextured. Both are static, without skeletons or animation clips.
-  Rigging and an idle animation remain asset work; GLB export alone does not provide them.
-- Production model selection stays backend-owned. The real Cetus asset is available in dev
-  previews without changing backend content. Actual device GPU performance still needs review.
+  Unrigged Cetus gets a procedural chest/shoulder breathing morph, generated on cloned geometry
+  with matching normals and stationary feet. An authored idle takes precedence. Full skeletal
+  animation remains asset work; the original GLB is unchanged.
+- Model selection stays backend-owned. Actual device GPU performance still needs review.
 - New working notes under `docs/` are local/ignored; lasting decisions belong in `journal/`.

@@ -1,6 +1,7 @@
-import { Suspense, useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, type ComponentRef } from 'react'
+import { OrbitControls } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
-import { ACESFilmicToneMapping, PCFShadowMap, PerspectiveCamera } from 'three'
+import { ACESFilmicToneMapping, MOUSE, PCFShadowMap, PerspectiveCamera, TOUCH } from 'three'
 import { CreatureModel } from './CreatureModel'
 import { Platform } from './Platform'
 import { Sanctuary } from './Sanctuary'
@@ -13,8 +14,6 @@ function CameraFraming({ stage }: { stage: boolean }) {
   useEffect(() => {
     if (!(camera instanceof PerspectiveCamera)) return
     const desktop = stage && size.width >= 992
-    camera.position.set(7, 5.2, 11)
-    camera.lookAt(0, 1.5, 0)
     // Three owns this mutable camera; changing projection is an imperative renderer operation.
     // oxlint-disable-next-line react/immutability
     camera.fov = stage && size.width < 600 ? 48 : 38
@@ -38,12 +37,33 @@ export default function CreatureScene({
   modelUrl,
   stage,
   environment,
+  breedId,
 }: {
   modelUrl: string | null
   stage: boolean
   environment: EnvironmentId
+  breedId?: string
 }) {
   const motion = useSceneMotion()
+  const controls = useRef<ComponentRef<typeof OrbitControls>>(null)
+  const resetView = () => {
+    const orbit = controls.current
+    if (!orbit) return
+    // Drain residual orbit momentum before restoring the authored view.
+    const damping = orbit.enableDamping
+    orbit.enableDamping = false
+    orbit.update()
+    orbit.object.position.set(7, 5.2, 11)
+    orbit.target.set(0, 1.5, 0)
+    orbit.update()
+    orbit.enableDamping = damping
+  }
+  const zoom = (factor: number) => {
+    const orbit = controls.current
+    if (!orbit) return
+    orbit.object.position.sub(orbit.target).multiplyScalar(factor).add(orbit.target)
+    orbit.update()
+  }
   const [status, setStatus] = useState(modelUrl ? 'loading' : 'missing')
   const ready = useCallback(() => setStatus('ready'), [])
   const failed = useCallback(() => setStatus('error'), [])
@@ -68,6 +88,22 @@ export default function CreatureScene({
         }
       >
         <CameraFraming stage={stage} />
+        <OrbitControls
+          ref={controls}
+          makeDefault
+          target={[0, 1.5, 0]}
+          enablePan={false}
+          enableDamping={motion}
+          dampingFactor={0.08}
+          rotateSpeed={0.65}
+          zoomSpeed={0.8}
+          minDistance={5.5}
+          maxDistance={22}
+          minPolarAngle={0.25}
+          maxPolarAngle={Math.PI / 2 - 0.08}
+          mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE }}
+          touches={{ ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_ROTATE }}
+        />
         <color attach="background" args={['#0b172b']} />
         <fog attach="fog" args={['#0b172b', 12, 38]} />
         <hemisphereLight args={['#99bad5', '#111526', 1.3]} />
@@ -91,11 +127,32 @@ export default function CreatureScene({
         {modelUrl ? (
           <SceneBoundary key={modelUrl} fallback={null} onError={failed}>
             <Suspense fallback={null}>
-              <CreatureModel url={modelUrl} motion={motion} onReady={ready} />
+              <CreatureModel
+                url={modelUrl}
+                motion={motion}
+                onReady={ready}
+                breathing={breedId === 'cetus'}
+              />
             </Suspense>
           </SceneBoundary>
         ) : null}
       </Canvas>
+      {stage && (
+        <div className="creature-slot__camera" role="group" aria-label="Camera controls">
+          <span className="creature-slot__camera-hint">
+            Drag to orbit · Scroll or pinch to zoom
+          </span>
+          <button type="button" aria-label="Zoom in" onClick={() => zoom(0.85)}>
+            +
+          </button>
+          <button type="button" aria-label="Zoom out" onClick={() => zoom(1.18)}>
+            −
+          </button>
+          <button type="button" onClick={resetView}>
+            Reset view
+          </button>
+        </div>
+      )}
       {note && (
         <span className="creature-slot__note creature-slot__note--overlay" role="status">
           {note}

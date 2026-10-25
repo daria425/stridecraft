@@ -46,3 +46,42 @@
   position: absolute;
   inset: 50% 0 auto;
 }
+
+.creature-slot canvas {
+  cursor: grab;
+  touch-action: none;
+}
+
+.creature-slot canvas:active {
+  cursor: grabbing;
+}
+
+.creature-slot__camera {
+  position: absolute;
+  z-index: 1;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--text-label);
+}
+
+.creature-slot__camera button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  background: rgb(7 8 24 / 0.8);
+  border-color: var(--color-gold-faint);
+}
+
+@media (max-width: 61.99rem) {
+  .creature-slot__camera {
+    bottom: auto;
+    top: calc(25svh + 0.5rem);
+    left: var(--space-3);
+  }
+  .creature-slot__camera-hint {
+    display: none;
+  }
+}

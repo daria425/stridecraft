@@ -9,4 +9,5 @@ npm run gen:api    # regenerate src/api/schema.d.ts from the running API
 npm run lint && npm run typecheck && npm test
 ```
 
-`/dev/picker` (dev only) shows the breed picker with fake breeds. `VITE_API_URL` overrides the API URL.
+Log in through `/login`; the dashboard is `/`, and onboarding is `/adopt`.
+`VITE_API_URL` overrides the API URL.

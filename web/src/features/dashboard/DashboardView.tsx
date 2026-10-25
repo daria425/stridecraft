@@ -18,8 +18,7 @@ export type DashboardViewProps = {
   onLogout: () => void
 }
 
-/** Pure layout for the dashboard: no hooks, so the dev sandbox can render it with fake data.
- * The scene fills the screen; the name banner and stats float over it. */
+/** The scene fills the screen; the name banner and stats float over it. */
 export function DashboardView(props: DashboardViewProps) {
   return (
     <main className="scene dashboard">

@@ -21,7 +21,7 @@ export function CreatureSlot({
 }) {
   return (
     <div
-      role="img"
+      role="region"
       aria-label={label}
       data-model-url={modelUrl ?? undefined}
       className={stage ? 'creature-slot creature-slot--stage' : 'creature-slot'}
@@ -35,6 +35,7 @@ export function CreatureSlot({
             modelUrl={modelUrl}
             stage={stage}
             environment={environment ?? environmentForBreed(breedId)}
+            breedId={breedId}
           />
         </Suspense>
       </SceneBoundary>

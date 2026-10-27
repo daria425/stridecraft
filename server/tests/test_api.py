@@ -99,7 +99,7 @@ class FakeImporter:
                 "activity_detail": lambda self, i: activity,
             },
         )()
-        importer = Importer(state.database, None, state.cipher)
+        importer = Importer(state.database, None, state.cipher, state.content)
         importer.client_for = lambda uid: fake_client
         return importer.import_for(user_id)
 
@@ -115,6 +115,7 @@ def test_the_api_needs_a_login(client):
     assert client.get("/me").status_code == 401
     assert client.post("/me/strider", json={"breed": "cetus", "name": "x"}).status_code == 401
     assert client.get("/me/sync").status_code == 401
+    assert client.get("/me/journey").status_code == 401
 
 
 def test_a_new_user_is_created_at_login_and_has_no_strider_yet(client, login):
@@ -269,11 +270,13 @@ def test_breeds_and_a_suggested_name_are_public(client):
 
 
 def test_breed_model_urls_come_from_the_asset_base(app, client):
-    app.state.stridecraft.content.breeds["modelled"] = Breed(
+    breeds = app.state.stridecraft.content.breeds
+    breeds["modelled"] = Breed(
         id="modelled", name="M", description="d", model="breeds/modelled.glb"
     )
+    breeds["unmodelled"] = Breed(id="unmodelled", name="U", description="d")
     breeds = {b["id"]: b for b in client.get("/breeds").json()}
-    assert breeds["cetus"]["model_url"] is None
+    assert breeds["unmodelled"]["model_url"] is None
     assert breeds["modelled"]["model_url"] == "http://api.test/assets/breeds/modelled.glb"
 
 
@@ -281,3 +284,36 @@ def test_the_openapi_spec_builds_with_clean_operation_ids(app):
     spec = app.openapi()
     assert spec["paths"]["/me"]["get"]["operationId"] == "get_me"
     assert "/me/strider" in spec["paths"]
+
+
+def test_the_journey_starts_at_zero_and_needs_a_strider(client, login, importer):
+    log_in(client, login)
+    assert client.get("/me/journey").json()["code"] == "no_strider"
+
+    adopt(client)
+    journey = client.get("/me/journey").json()
+    assert journey["total_km"] == 10  # the run the fake import finds
+    assert 0 < journey["km_to_go"] < journey["spacing_km"]
+    assert journey["crossed"] == []
+    assert "Aura" in journey["intro"]
+    assert journey["landmark"]["name"]
+
+
+def test_the_adopter_chooses_how_far_apart_waypoints_are(client, login, importer):
+    log_in(client, login)
+    response = client.post(
+        "/me/strider", json={"breed": "cetus", "name": "Aura", "waypoint_spacing_km": 120}
+    )
+    assert response.json()["waypoint_spacing_km"] == 120
+    assert client.get("/me/journey").json()["spacing_km"] == 120
+
+
+@pytest.mark.parametrize("spacing", [49, 1001])
+def test_a_waypoint_spacing_out_of_range_is_a_plain_message(client, login, importer, spacing):
+    log_in(client, login)
+    response = client.post(
+        "/me/strider", json={"breed": "cetus", "name": "Aura", "waypoint_spacing_km": spacing}
+    )
+    assert response.status_code == 422
+    assert response.json()["code"] == "invalid_adoption"
+    assert client.get("/me").json()["strider"] is None

@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 
 from stridecraft.config import StravaConfig
+from stridecraft.content.registry import Content
 from stridecraft.db.database import Database
 from stridecraft.db.repositories import UserRepository
 from stridecraft.errors import NotAuthorizedError
@@ -17,8 +18,9 @@ class Importer:
     the request that started it (and its session) is gone, and users must never share a client.
     """
 
-    def __init__(self, database: Database, strava: StravaConfig, cipher: Fernet):
+    def __init__(self, database: Database, strava: StravaConfig, cipher: Fernet, content: Content):
         self.database = database
+        self.content = content
         self.strava = strava
         self.cipher = cipher
 
@@ -27,7 +29,7 @@ class Importer:
             user = UserRepository(session).get(user_id)
             if user is None:
                 raise NotAuthorizedError("This user no longer exists")
-            return SyncService(self.client_for(user_id), session).sync(user)
+            return SyncService(self.client_for(user_id), session, self.content).sync(user)
 
     def client_for(self, user_id: int) -> StravaClient:
         store = DbTokenStore(self.database, self.cipher, user_id)

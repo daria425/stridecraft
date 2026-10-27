@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Salt Wind
+tags: [coast, sea]
+text: >-
+  The road hugs the shoreline. {strider} watches {sea_creature} offshore, then runs on, faster
+  than before.
+variables:
+  sea_creature: [a pod of dolphins, a gull with wings too wide for its body, a turtle the size of a boat]

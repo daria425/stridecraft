@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: The Ferryman
+tags: [coast, sea]
+text: >-
+  A weathered ferryman is mending nets by his boat. He squints at the {breed} beside him, says
+  nothing, and points the way with {pointer}.
+variables:
+  pointer: [a wooden oar, a crooked finger, a net needle]

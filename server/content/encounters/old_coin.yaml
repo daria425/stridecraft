@@ -1,0 +1,7 @@
+# Placeholder text: Daria to rewrite.
+name: Old Coin
+tags: [myth]
+text: >-
+  {strider} noses up {find} half buried in the road, stamped with a face nobody remembers.
+variables:
+  find: [a bronze coin, a clay token, a tiny silver owl]

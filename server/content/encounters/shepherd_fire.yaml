@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Shepherd Fire
+tags: [wild]
+text: >-
+  A shepherd's fire still smolders at the roadside. Someone left {gift} on a flat stone for
+  passing travellers.
+variables:
+  gift: [a heel of bread, a cup of goat milk, a handful of dried figs]

@@ -77,7 +77,7 @@ class Cli:
             self.run_sync(session, self.ensure_user(session))
 
     def run_sync(self, session: Session, user: User) -> None:
-        result = SyncService(self.client, session).sync(user)
+        result = SyncService(self.client, session, self.content).sync(user)
         self.print_sync(result)
         self.print_stats(session, user)
 

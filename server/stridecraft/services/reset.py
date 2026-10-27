@@ -1,6 +1,11 @@
 from sqlalchemy.orm import Session
 
-from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
+from stridecraft.db.repositories import (
+    JourneyEventRepository,
+    RunRepository,
+    StriderRepository,
+    UserRepository,
+)
 from stridecraft.errors import NoStriderError
 from stridecraft.models import User
 
@@ -16,6 +21,7 @@ class StriderReset:
         striders = StriderRepository(self.session)
         if striders.get_for_user(user.id) is None:
             raise NoStriderError("There is no strider to remove")
+        JourneyEventRepository(self.session).delete_all(user.id)  # they point at runs
         RunRepository(self.session).delete_all(user.id)
         striders.delete_for_user(user.id)
         UserRepository(self.session).clear_synced(user.id)

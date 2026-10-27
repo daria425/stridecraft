@@ -58,7 +58,9 @@ def adopt(
     state: State,
     background: BackgroundTasks,
 ) -> StriderOut:
-    strider = AdoptionService(session, content).adopt(user, body.breed, body.name)
+    strider = AdoptionService(session, content).adopt(
+        user, body.breed, body.name, waypoint_spacing_km=body.waypoint_spacing_km
+    )
     session.commit()
     logger.info("User %s adopted %s the %s", user.id, strider.name, strider.breed)
     state.jobs.start(user.id)

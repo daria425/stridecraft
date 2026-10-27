@@ -120,6 +120,27 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/me/journey': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * How far the strider has travelled and what it met on the way
+     * @description Every run after adoption moves the strider along an endless road, a waypoint every
+     *     `spacing_km`. Nothing here blocks or punishes: the road only ever goes forward.
+     */
+    get: operations['get_journey']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/breeds': {
     parameters: {
       query?: never
@@ -175,6 +196,12 @@ export interface components {
        * @example Aura
        */
       name?: string | null
+      /**
+       * Waypoint Spacing Km
+       * @description Kilometres between waypoints on the journey, 50 to 1000 (default 50). Smaller means faster progression through the same story: match it to your weekly mileage.
+       * @example 50
+       */
+      waypoint_spacing_km?: number | null
     }
     /** BreedOut */
     BreedOut: {
@@ -202,6 +229,64 @@ export interface components {
        * @example Adopt a strider before syncing
        */
       message: string
+    }
+    /** JourneyEventOut */
+    JourneyEventOut: {
+      /** Waypoint Number */
+      waypoint_number: number
+      /**
+       * Kind
+       * @description `encounter` or `landmark`.
+       */
+      kind: string
+      /** Title */
+      title: string
+      /** Text */
+      text: string
+      /** Leg Id */
+      leg_id: string
+      /**
+       * Crossed At
+       * Format: date-time
+       * @description When the run that crossed it started.
+       */
+      crossed_at: string
+    }
+    /** JourneyOut */
+    JourneyOut: {
+      /** Intro */
+      intro: string
+      /**
+       * Total Km
+       * @description Distance of every run since adoption.
+       */
+      total_km: number
+      /** Spacing Km */
+      spacing_km: number
+      /**
+       * Leg Name
+       * @description The leg the next waypoint is in.
+       */
+      leg_name: string
+      /**
+       * Km To Go
+       * @description Distance to the next waypoint.
+       */
+      km_to_go: number
+      /** @description The end of the current leg. */
+      landmark: components['schemas']['LandmarkAheadOut']
+      /**
+       * Crossed
+       * @description Newest first.
+       */
+      crossed: components['schemas']['JourneyEventOut'][]
+    }
+    /** LandmarkAheadOut */
+    LandmarkAheadOut: {
+      /** Name */
+      name: string
+      /** Km To Go */
+      km_to_go: number
     }
     /** MeOut */
     MeOut: {
@@ -243,6 +328,8 @@ export interface components {
        * Format: date-time
        */
       adopted_at: string
+      /** Waypoint Spacing Km */
+      waypoint_spacing_km: number
       stats: components['schemas']['StatsOut']
     }
     /** SyncResultOut */
@@ -534,6 +621,44 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+    }
+  }
+  get_journey: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['JourneyOut']
+        }
+      }
+      /** @description Not logged in */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description No strider yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
       }
     }
   }

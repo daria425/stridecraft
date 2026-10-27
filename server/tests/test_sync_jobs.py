@@ -73,9 +73,9 @@ def test_a_double_adoption_is_a_typed_error_not_a_database_crash(session, user):
     striders = StriderRepository(session)
     from datetime import UTC, datetime
 
-    striders.create(user.id, "cetus", "One", datetime.now(UTC))
+    striders.create(user.id, "cetus", "One", datetime.now(UTC), 50)
     with pytest.raises(AlreadyAdoptedError):
-        striders.create(user.id, "cetus", "Two", datetime.now(UTC))
+        striders.create(user.id, "cetus", "Two", datetime.now(UTC), 50)
 
 
 def test_each_users_tokens_are_kept_apart_and_unreadable_with_another_key():

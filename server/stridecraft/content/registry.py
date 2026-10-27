@@ -5,9 +5,12 @@ import yaml
 from pydantic import ValidationError
 
 from stridecraft.config import CONTENT_DIR
-from stridecraft.content.models import Breed, ContentModel
+from stridecraft.content.models import Breed, ContentModel, Encounter, Journey
 
 T = TypeVar("T", bound=ContentModel)
+
+# The one road every strider walks. More journeys may come; this is the one in use.
+JOURNEY_ID = "voyage"
 
 
 class ContentError(ValueError):
@@ -17,12 +20,41 @@ class ContentError(ValueError):
 class Content:
     """Every piece of game content, loaded once and validated. Look things up by id."""
 
-    def __init__(self, breeds: dict[str, Breed]):
+    def __init__(
+        self,
+        breeds: dict[str, Breed],
+        journeys: dict[str, Journey] | None = None,
+        encounters: dict[str, Encounter] | None = None,
+    ):
         self.breeds = breeds
+        self.journeys = journeys or {}
+        self.encounters = encounters or {}
+
+    @property
+    def journey(self) -> Journey:
+        if JOURNEY_ID not in self.journeys:
+            raise ContentError(f"journeys/{JOURNEY_ID}.yaml is missing")
+        return self.journeys[JOURNEY_ID]
 
     @classmethod
     def load(cls, directory: Path = CONTENT_DIR) -> "Content":
-        return cls(breeds=cls.load_kind(directory / "breeds", Breed))
+        content = cls(
+            breeds=cls.load_kind(directory / "breeds", Breed),
+            journeys=cls.load_kind(directory / "journeys", Journey),
+            encounters=cls.load_kind(directory / "encounters", Encounter),
+        )
+        content.check_references()
+        return content
+
+    def check_references(self) -> None:
+        """Content kinds point at each other by tag; a leg nothing can happen in is a mistake."""
+        for journey in self.journeys.values():
+            for leg in journey.legs:
+                if not any(set(leg.tags) & set(e.tags) for e in self.encounters.values()):
+                    raise ContentError(
+                        f"journeys/{journey.id}.yaml: no encounter has a tag of leg {leg.id!r} "
+                        f"({', '.join(leg.tags)})"
+                    )
 
     @classmethod
     def load_kind(cls, folder: Path, model: type[T]) -> dict[str, T]:

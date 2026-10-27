@@ -44,7 +44,7 @@ export function useRandomName() {
 export function useAdopt() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: async (body: { breed: string; name: string | null }) =>
+    mutationFn: async (body: { breed: string; name: string | null; waypoint_spacing_km: number }) =>
       unwrap(await api.POST('/me/strider', { body })),
     // Also on failure: a 409 (already adopted) means /me now has a strider and the gate should move on.
     onSettled: () => client.invalidateQueries({ queryKey: ['me'] }),

@@ -35,6 +35,10 @@
 .adopt__form input:focus-visible {
   outline-offset: 0;
 }
+.adopt__hint {
+  margin: 0;
+  color: var(--color-muted);
+}
 .adopt__form p[role='alert'] {
   margin: 0;
   color: var(--color-danger);

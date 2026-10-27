@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Ruined Watchtower
+tags: [wild, mountain]
+text: >-
+  The ruins of an old watchtower lean over the road. Carved into its stone, {strider} finds
+  {carving}.
+variables:
+  carving: [a ship with too many oars, a running figure with wings at its heels, a single eye]

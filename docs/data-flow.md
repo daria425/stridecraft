@@ -53,17 +53,24 @@ additive; a run's gain depends on earlier runs only through the baseline and the
 3. Sort the new runs oldest first. For each, compute gains against stored runs plus the earlier
    runs just processed, and commit the run and its gains in one transaction. Baseline runs
    (before adoption) are stored without gains.
-4. Best efforts (for PBs) need one detail request per run, and Strava allows about 100 requests
+4. A run after adoption also moves the strider along the journey (ADR-0017), in the same
+   transaction as its gains: the total distance of all runs with gains is compared with the
+   strider's next waypoint (the last crossing's threshold plus its `waypoint_spacing_km`). Each
+   waypoint reached is turned into a scene (the leg's landmark, or a random encounter that fits the
+   leg and was not shown lately) and stored with its text. Crossing a landmark also rolls which leg
+   comes next. Distance is never stored, only these crossings.
+5. Best efforts (for PBs) need one detail request per run, and Strava allows about 100 requests
    per 15 minutes. So only the newest 50 GPS runs from adoption on get the detail call; the rest
    are stored without best efforts. If Strava still answers 429, the sync carries on without
    details: stats never depend on them.
-5. Re-running a sync changes nothing.
+6. Re-running a sync changes nothing.
 
 A run starting before `adopted_at` is baseline even if uploaded later.
 
 ## Known limits
 
-- Gains are frozen: retagging, editing or deleting a run in Strava after sync changes nothing.
+- Gains and journey crossings are frozen: retagging, editing or deleting a run in Strava after
+  sync changes nothing.
 - A late upload with an old start time does not change gains already stored for later runs.
 - A run that shows up in Strava with a start time more than 7 days before the previous sync is
   never fetched until a rebuild.

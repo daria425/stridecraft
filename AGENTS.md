@@ -7,7 +7,7 @@ Gamify real runs into a Palworld/Pokemon/WoW/Ark-inspired RPG for **intermediate
 - **Audience:** just the author first. Keep a `user_id` in the schema so multi-user later isn't a rewrite.
 - **Data source:** Strava API (OAuth + webhook/sync). Model a generic `Run` so other sources can plug in later.
 - **Stack:** Python (FastAPI) server in `server/`, web frontend in `web/` (Vite + React + TS, journal/0014; unstyled until the design pass).
-- **Content is data, not code:** skills, quests, bosses and outfits live in data files (author adds new ones over time): YAML, one file per entity in `server/content/`, validated by pydantic and loaded via `stridecraft.content.Content` (journal/0008). Binary assets (3D models) live in repo-root `assets/` and reach the frontend as URLs from the API (journal/0013); the frontend never reads the YAML.
+- **Content is data, not code:** breeds, the journey and its encounters, and later skills, quests, bosses and outfits live in data files (author adds new ones over time): YAML, one file per entity in `server/content/`, validated by pydantic and loaded via `stridecraft.content.Content` (journal/0008). Binary assets (3D models) live in repo-root `assets/` and reach the frontend as URLs from the API (journal/0013); the frontend never reads the YAML.
 
 ### Character
 
@@ -85,5 +85,6 @@ Current open items:
 - PBs and skills: best efforts are stored for the newest 50 runs, ready for the skills phase.
 - Base values: the strider's base values are still all 10, and breeds are looks only.
 - API: onboarding endpoints, Strava login and encrypted per-user tokens exist (journal/0012, run with `uvicorn stridecraft.api.main:app`). The CLI is now a single-user dev util. Web frontend: login, adoption and dashboard exist; `CreatureSlot` uses React Three Fiber with independent habitats (journal/0016). Cetus's textured GLB is wired through breed content, with procedural breathing and orbit/zoom controls; full skeletal animation remains. Temporary `/dev/*` frontend sandboxes are removed; use `/` and `/adopt`. Not started: the Strava webhook (and delete-on-deauth), per-user time zones for weeks, and the fighter-selection UI.
+- Journey (journal/0017): skeleton built. An endless road: legs of 6 waypoints ending in landmarks, the next leg rolled at each landmark, scenes drawn from tagged encounter pools (`server/content/journeys/`, `encounters/`, placeholder text for Daria to rewrite); each user picks their waypoint spacing (50-1000 km) at adoption; crossings are frozen events, position is derived (`GET /me/journey`). Not started: the journey/recap UI, quests and trophies on top of encounters (next planning step), changing spacing after adoption.
 - Temporary additions under `docs/` stay git-ignored; lasting decisions belong in `journal/`.
 - Packaging: server/content/ isn't in the wheel build yet.

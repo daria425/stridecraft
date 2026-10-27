@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Driftwood Shrine
+tags: [coast]
+text: >-
+  A shrine of driftwood and shells stands above the tideline, left by sailors long gone.
+  {strider} lays {offering} at its foot and the road feels lighter.
+variables:
+  offering: [a smooth grey stone, a braid of kelp, a bronze coin]

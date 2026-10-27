@@ -1,0 +1,7 @@
+# Placeholder text: Daria to rewrite.
+name: Oracle Whisper
+tags: [myth]
+text: >-
+  A voice from nowhere murmurs that {omen}. {strider} flicks an ear and keeps going.
+variables:
+  omen: [the road is longer than it looks, someone is already waiting at its end, the gods are watching with interest]

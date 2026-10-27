@@ -1,8 +1,13 @@
 # ADR-0015: A journey carried by distance, with authored quests and AI-tailored challenges
 
 **Date**: 2026-10-20
-**Status**: proposed
+**Status**: partly superseded by ADR-0017
 **Deciders**: Daria, Claude
+
+> **Note (2026-10-25):** ADR-0017 replaces section 1 (fixed-km waypoints, a journey that ends) and
+> build-order phase 1 with an endless road of per-user waypoint spacing, rolled legs and encounter pools. Sections
+> 2-7 (quests, challenges, the picker, rewards, terms, later phases) still stand; "waypoint at km X"
+> now means "the nth waypoint, at the user's spacing".
 
 ## Context
 

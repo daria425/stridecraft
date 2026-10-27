@@ -6,9 +6,11 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.orm import Session
 
 from stridecraft.config import STATS_WINDOW_DAYS
+from stridecraft.content.registry import Content
 from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
 from stridecraft.errors import NoStriderError, RateLimitError
 from stridecraft.models import Run, Strider, User
+from stridecraft.services.journey import JourneyService
 from stridecraft.stats.stats_calculator import StatConverter
 from stridecraft.strava.client import StravaClient
 
@@ -39,6 +41,7 @@ class SyncService:
         self,
         client: StravaClient,
         session: Session,
+        content: Content,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ):
         self.client = client
@@ -48,6 +51,7 @@ class SyncService:
         self.striders = StriderRepository(session)
         self.runs = RunRepository(session)
         self.converter = StatConverter()
+        self.journey = JourneyService(session, content)
 
     def sync(self, user: User) -> SyncResult:
         strider = self.striders.get_for_user(user.id)
@@ -122,13 +126,16 @@ class SyncService:
             return run
 
     def store(self, run: Run, strider: Strider, history: list[Run], computed_at: datetime) -> bool:
-        """Save the run; before adoption it is baseline only and gets no gains. Returns that."""
+        """Save the run; before adoption it is baseline only and gets no gains. Returns that.
+        A run with gains also moves the strider along the journey, in the same transaction."""
         is_baseline = run.start_time < strider.adopted_at
         gains = None
         if not is_baseline:
             gains = self.converter.gains_for(run, history, strider.adopted_at)
-        self.runs.add(run, gains, computed_at)
-        self.session.commit()  # a run and its gains land together or not at all
+        run_id = self.runs.add(run, gains, computed_at)
+        if gains is not None:
+            self.journey.record(strider, run_id, run)
+        self.session.commit()  # a run, its gains and its crossings land together or not at all
         return is_baseline
 
     @staticmethod

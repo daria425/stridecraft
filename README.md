@@ -1,4 +1,4 @@
-# Stridecraft
+# Stridecraft: A Greek Mythology inspired Running RPG
 
 **Your effort becomes their power.**
 

@@ -7,13 +7,20 @@ from dataclasses import asdict
 from datetime import datetime
 
 from cryptography.fernet import Fernet
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from stridecraft.db.tables import RunGainRow, RunRow, StravaTokenRow, StriderRow, UserRow
+from stridecraft.db.tables import (
+    JourneyEventRow,
+    RunGainRow,
+    RunRow,
+    StravaTokenRow,
+    StriderRow,
+    UserRow,
+)
 from stridecraft.errors import AlreadyAdoptedError
-from stridecraft.models import BestEffort, Run, Strider, User
+from stridecraft.models import BestEffort, JourneyEvent, Run, Strider, User
 from stridecraft.stats.stats_calculator import RunGains
 from stridecraft.strava.auth import Tokens
 
@@ -98,21 +105,33 @@ class StriderRepository:
 
     def get_for_user(self, user_id: int) -> Strider | None:
         row = self.session.scalar(select(StriderRow).filter_by(user_id=user_id))
-        if row is None:
-            return None
-        return Strider(row.id, row.user_id, row.breed, row.name, row.adopted_at)
+        return None if row is None else self.to_strider(row)
 
-    def create(self, user_id: int, breed: str, name: str, adopted_at: datetime) -> Strider:
-        row = StriderRow(user_id=user_id, breed=breed, name=name, adopted_at=adopted_at)
+    def create(
+        self, user_id: int, breed: str, name: str, adopted_at: datetime, waypoint_spacing_km: int
+    ) -> Strider:
+        row = StriderRow(
+            user_id=user_id,
+            breed=breed,
+            name=name,
+            adopted_at=adopted_at,
+            waypoint_spacing_km=waypoint_spacing_km,
+        )
         try:
             with self.session.begin_nested():
                 self.session.add(row)
         except IntegrityError as error:  # a double click got there first
             raise AlreadyAdoptedError("This user already has a strider") from error
-        return Strider(row.id, row.user_id, row.breed, row.name, row.adopted_at)
+        return self.to_strider(row)
 
     def delete_for_user(self, user_id: int) -> None:
         self.session.execute(delete(StriderRow).filter_by(user_id=user_id))
+
+    @staticmethod
+    def to_strider(row: StriderRow) -> Strider:
+        return Strider(
+            row.id, row.user_id, row.breed, row.name, row.adopted_at, row.waypoint_spacing_km
+        )
 
 
 class TokenRepository:
@@ -161,8 +180,9 @@ class RunRepository:
             self.session.scalars(select(RunRow.source_id).filter_by(user_id=user_id, source=source))
         )
 
-    def add(self, run: Run, gains: RunGains | None, computed_at: datetime) -> None:
-        """Store a run; `gains=None` marks it as a baseline run (before adoption)."""
+    def add(self, run: Run, gains: RunGains | None, computed_at: datetime) -> int:
+        """Store a run and return its id; `gains=None` marks it as a baseline run (before
+        adoption)."""
         row = RunRow(
             user_id=run.user_id,
             source=run.source,
@@ -184,6 +204,17 @@ class RunRepository:
             )
         self.session.add(row)
         self.session.flush()
+        return row.id
+
+    def journey_metres(self, user_id: int) -> float:
+        """How far the strider has travelled: the distance of every run that has gains, i.e.
+        every run after adoption."""
+        query = (
+            select(func.coalesce(func.sum(RunRow.distance_m), 0.0))
+            .join(RunGainRow, RunGainRow.run_id == RunRow.id)
+            .where(RunRow.user_id == user_id)
+        )
+        return self.session.scalar(query)
 
     def delete_all(self, user_id: int) -> None:
         """Every stored run of the user, with its gains."""
@@ -215,4 +246,61 @@ class RunRepository:
             elevation_gain_m=row.elevation_gain_m,
             is_training=row.is_training,
             best_efforts=[BestEffort(**effort) for effort in row.best_efforts or []],
+        )
+
+
+class JourneyEventRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def add(self, event: JourneyEvent) -> None:
+        self.session.add(JourneyEventRow(**asdict(event)))
+        self.session.flush()
+
+    def latest(self, user_id: int) -> JourneyEvent | None:
+        row = self.session.scalar(
+            select(JourneyEventRow)
+            .filter_by(user_id=user_id)
+            .order_by(JourneyEventRow.waypoint_number.desc())
+            .limit(1)
+        )
+        return None if row is None else self.to_event(row)
+
+    def newest_first(self, user_id: int) -> list[JourneyEvent]:
+        rows = self.session.scalars(
+            select(JourneyEventRow)
+            .filter_by(user_id=user_id)
+            .order_by(JourneyEventRow.waypoint_number.desc())
+        )
+        return [self.to_event(row) for row in rows]
+
+    def recent_encounter_ids(self, user_id: int, limit: int) -> list[str]:
+        """The last few encounters shown, newest first, so the roller can avoid repeating them."""
+        return list(
+            self.session.scalars(
+                select(JourneyEventRow.source_id)
+                .filter_by(user_id=user_id, kind="encounter")
+                .order_by(JourneyEventRow.waypoint_number.desc())
+                .limit(limit)
+            )
+        )
+
+    def delete_all(self, user_id: int) -> None:
+        self.session.execute(delete(JourneyEventRow).filter_by(user_id=user_id))
+
+    @staticmethod
+    def to_event(row: JourneyEventRow) -> JourneyEvent:
+        return JourneyEvent(
+            user_id=row.user_id,
+            run_id=row.run_id,
+            waypoint_number=row.waypoint_number,
+            leg_id=row.leg_id,
+            leg_waypoint=row.leg_waypoint,
+            next_leg_id=row.next_leg_id,
+            kind=row.kind,
+            source_id=row.source_id,
+            title=row.title,
+            text=row.text,
+            threshold_km=row.threshold_km,
+            crossed_at=row.crossed_at,
         )

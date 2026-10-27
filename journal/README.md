@@ -16,5 +16,6 @@
 | [0012](0012-rest-api-strava-login.md) | FastAPI REST API, "log in with Strava" via Authlib and a session cookie | accepted | 2026-10-15 |
 | [0013](0013-assets-shared-at-repo-root.md) | Binary assets live in a repo-root `assets/`, served by URL | accepted | 2026-10-16 |
 | [0014](0014-web-frontend-vite-react.md) | Vite + React SPA; sync on open and tab focus until the webhook | accepted | 2026-10-16 |
-| [0015](0015-journey-quests-and-tailored-challenges.md) | Journey carried by distance, authored quests, AI-tailored challenges | proposed | 2026-10-20 |
+| [0015](0015-journey-quests-and-tailored-challenges.md) | Journey carried by distance, authored quests, AI-tailored challenges | partly superseded by 0017 | 2026-10-20 |
 | [0016](0016-creature-renderer-and-independent-habitats.md) | React Three Fiber renderer with independent creature habitats | accepted | 2026-10-21 |
+| [0017](0017-endless-journey-from-encounter-pools.md) | Endless journey: authored legs rolled in turn, filled with random encounters | accepted | 2026-10-25 |

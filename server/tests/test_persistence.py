@@ -2,7 +2,12 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
+from stridecraft.db.repositories import (
+    JourneyEventRepository,
+    RunRepository,
+    StriderRepository,
+    UserRepository,
+)
 from stridecraft.errors import AdoptionError, NoStriderError, RateLimitError
 from stridecraft.models import BestEffort, Run
 from stridecraft.services.adoption import AdoptionService
@@ -69,7 +74,7 @@ class Setup:
         self.now = now
         AdoptionService(session, content).adopt(user, "cetus", "Achilles", ADOPTED)
         session.commit()
-        self.sync_service = SyncService(fake, session, clock=lambda: self.now)
+        self.sync_service = SyncService(fake, session, content, clock=lambda: self.now)
 
     def sync(self):
         user = UserRepository(self.session).get(self.user.id)
@@ -103,6 +108,24 @@ def test_only_runs_after_adoption_earn_gains_and_stats_match_the_calculator(make
     assert len(runs.gains(setup.user.id)) == 3
     assert setup.stats() == StatConverter().convert(stored, ADOPTED).stats
     assert setup.stats().speed > Stats().speed
+
+
+def test_a_synced_run_moves_the_strider_along_the_journey_and_syncing_again_adds_nothing(
+    make_setup, session
+):
+    spacing = 50  # the default
+    setup = make_setup(
+        activity(-3, km=80),  # before adoption: baseline, does not count towards the journey
+        activity(1, km=spacing * 0.7),
+        activity(2, km=spacing * 0.7),
+    )
+    setup.sync()
+    events = JourneyEventRepository(session)
+    assert [e.waypoint_number for e in events.newest_first(setup.user.id)] == [1]
+    assert RunRepository(session).journey_metres(setup.user.id) == spacing * 1.4 * 1000
+
+    assert setup.sync().new_runs == 0
+    assert len(events.newest_first(setup.user.id)) == 1
 
 
 def test_syncing_again_changes_nothing(make_setup):
@@ -203,9 +226,9 @@ def test_nothing_new_is_a_clean_empty_sync(make_setup):
     assert (result.new_runs, result.detailed_runs) == (0, 0)
 
 
-def test_cannot_sync_before_adopting(session, user):
+def test_cannot_sync_before_adopting(session, user, content):
     with pytest.raises(NoStriderError):
-        SyncService(FakeStrava(), session).sync(user)
+        SyncService(FakeStrava(), session, content).sync(user)
 
 
 def test_run_survives_the_database_with_time_zone_and_best_efforts(session, user):

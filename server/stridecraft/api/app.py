@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from stridecraft.api.errors import handle_stridecraft_error
-from stridecraft.api.routers import auth, breeds, dev, me
+from stridecraft.api.routers import auth, breeds, dev, journey, me
 from stridecraft.api.state import AppState
 from stridecraft.api.strava_login import StravaLogin
 from stridecraft.config import ASSETS_DIR, AppConfig, StravaConfig
@@ -44,6 +44,7 @@ def create_app(
     config = config or AppConfig.from_env()
     strava = strava or StravaConfig.from_env()
     database = database or Database()
+    content = Content.load()
     cipher = Fernet(config.token_encryption_key.encode())
 
     app = FastAPI(
@@ -55,10 +56,10 @@ def create_app(
     app.state.stridecraft = AppState(
         config=config,
         database=database,
-        content=Content.load(),
+        content=content,
         cipher=cipher,
         login=login or StravaLogin(strava),
-        importer=Importer(database, strava, cipher),
+        importer=Importer(database, strava, cipher, content),
         jobs=SyncJobs(),
     )
     app.add_middleware(
@@ -79,7 +80,7 @@ def create_app(
     # Dev convenience; in production ASSET_BASE_URL points at a CDN or static host (journal/0013).
     if ASSETS_DIR.is_dir():
         app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
-    for router in (auth.router, me.router, breeds.router):
+    for router in (auth.router, me.router, journey.router, breeds.router):
         app.include_router(router)
     if config.dev_tools:
         app.include_router(dev.router)

@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Tide Pools
+tags: [coast, sea]
+text: >-
+  At low tide the rocks hold bright pools. {strider} splashes through {pool_find} before the sea
+  closes in again.
+variables:
+  pool_find: [a pool of tiny silver fish, a ring of orange starfish, a crab in a shell far too large for it]

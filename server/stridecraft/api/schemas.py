@@ -4,7 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from stridecraft.models import Strider, User
+from stridecraft.models import JourneyEvent, Strider, User
+from stridecraft.services.journey import JourneyProgress
 from stridecraft.services.sync_jobs import SyncState, SyncStatus
 from stridecraft.stats.stats_calculator import Stats
 
@@ -29,6 +30,7 @@ class StriderOut(BaseModel):
     name: str
     breed: str
     adopted_at: datetime
+    waypoint_spacing_km: int
     stats: StatsOut
 
     @classmethod
@@ -37,6 +39,7 @@ class StriderOut(BaseModel):
             name=strider.name,
             breed=strider.breed,
             adopted_at=strider.adopted_at,
+            waypoint_spacing_km=strider.waypoint_spacing_km,
             stats=StatsOut.of(stats),
         )
 
@@ -69,6 +72,15 @@ class AdoptIn(BaseModel):
         description=(
             "Up to 30 characters. Leave out to get a random one. The adoption page should "
             "prefill the field from `GET /names/random` and let the user edit it."
+        ),
+    )
+
+    waypoint_spacing_km: int | None = Field(
+        default=None,
+        examples=[50],
+        description=(
+            "Kilometres between waypoints on the journey, 50 to 1000 (default 50). Smaller means "
+            "faster progression through the same story: match it to your weekly mileage."
         ),
     )
 
@@ -105,4 +117,51 @@ class SyncStatusOut(BaseModel):
             last_synced_at=user.last_synced_at,
             last_result=result and SyncResultOut(**vars(result)),
             error=status.error,
+        )
+
+
+class JourneyEventOut(BaseModel):
+    waypoint_number: int
+    kind: str = Field(description="`encounter` or `landmark`.")
+    title: str
+    text: str
+    leg_id: str
+    crossed_at: datetime = Field(description="When the run that crossed it started.")
+
+    @classmethod
+    def of(cls, event: JourneyEvent) -> "JourneyEventOut":
+        return cls(
+            waypoint_number=event.waypoint_number,
+            kind=event.kind,
+            title=event.title,
+            text=event.text,
+            leg_id=event.leg_id,
+            crossed_at=event.crossed_at,
+        )
+
+
+class LandmarkAheadOut(BaseModel):
+    name: str
+    km_to_go: float
+
+
+class JourneyOut(BaseModel):
+    intro: str
+    total_km: float = Field(description="Distance of every run since adoption.")
+    spacing_km: int
+    leg_name: str = Field(description="The leg the next waypoint is in.")
+    km_to_go: float = Field(description="Distance to the next waypoint.")
+    landmark: LandmarkAheadOut = Field(description="The end of the current leg.")
+    crossed: list[JourneyEventOut] = Field(description="Newest first.")
+
+    @classmethod
+    def of(cls, progress: JourneyProgress) -> "JourneyOut":
+        return cls(
+            intro=progress.intro,
+            total_km=progress.total_km,
+            spacing_km=progress.spacing_km,
+            leg_name=progress.leg_name,
+            km_to_go=progress.km_to_go,
+            landmark=LandmarkAheadOut(**vars(progress.landmark)),
+            crossed=[JourneyEventOut.of(event) for event in progress.crossed],
         )

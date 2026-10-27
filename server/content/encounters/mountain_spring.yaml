@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Mountain Spring
+tags: [mountain]
+text: >-
+  A cold spring runs out of the rock. {strider} drinks, shakes off the dust, and the climb behind
+  feels shorter. The water tastes of {taste}.
+variables:
+  taste: [iron, snow, honey]

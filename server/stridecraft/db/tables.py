@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import JSON, CheckConstraint, DateTime, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.types import TypeDecorator
 
@@ -41,12 +41,14 @@ class UserRow(Base):
 
 class StriderRow(Base):
     __tablename__ = "striders"
+    __table_args__ = (CheckConstraint("waypoint_spacing_km > 0"),)  # a 0 would loop for ever
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)  # one per user
     breed: Mapped[str]  # an id from server/content/breeds/, deliberately not a foreign key
     name: Mapped[str]
     adopted_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    waypoint_spacing_km: Mapped[int]  # the user's own pace along the journey (ADR-0017)
 
 
 class RunRow(Base):
@@ -94,3 +96,25 @@ class StravaTokenRow(Base):
     access_token: Mapped[str]
     refresh_token: Mapped[str]
     expires_at: Mapped[int]
+
+
+class JourneyEventRow(Base):
+    """A waypoint the strider crossed, with the scene it became. Frozen: the text is stored as shown
+    so editing content later never rewrites what someone already read (ADR-0017)."""
+
+    __tablename__ = "journey_events"
+    __table_args__ = (UniqueConstraint("user_id", "waypoint_number"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    run_id: Mapped[int] = mapped_column(ForeignKey("runs.id"))
+    waypoint_number: Mapped[int]  # 1 for the first waypoint, counting on without end
+    leg_id: Mapped[str]  # an id from the journey in server/content/, not a foreign key
+    leg_waypoint: Mapped[int]  # 1 for the first waypoint of its leg; the last one is the landmark
+    next_leg_id: Mapped[str | None]  # on a landmark: the leg rolled to come next
+    kind: Mapped[str]  # "encounter" or "landmark"
+    source_id: Mapped[str]  # the encounter id, or the leg id for a landmark
+    title: Mapped[str]
+    text: Mapped[str]
+    threshold_km: Mapped[int]  # the distance this waypoint sits at, not where the run ended
+    crossed_at: Mapped[datetime] = mapped_column(UtcDateTime)

@@ -71,3 +71,22 @@ class Strider:
     breed: str
     name: str
     adopted_at: datetime
+    waypoint_spacing_km: int  # km between waypoints on the journey, chosen at adoption
+
+
+@dataclass(frozen=True)
+class JourneyEvent:
+    """A waypoint the strider crossed and what it turned into, as the user saw it."""
+
+    user_id: int
+    run_id: int
+    waypoint_number: int
+    leg_id: str
+    leg_waypoint: int
+    kind: str  # "encounter" or "landmark"
+    source_id: str
+    title: str
+    text: str
+    threshold_km: int
+    crossed_at: datetime
+    next_leg_id: str | None = None  # set on a landmark: where the road goes next

@@ -1,0 +1,8 @@
+# Placeholder text: Daria to rewrite.
+name: Goat Path
+tags: [wild, mountain]
+text: >-
+  A narrow goat path climbs the hillside. {strider} follows it while {sound} echoes from
+  somewhere above.
+variables:
+  sound: [a bell, distant thunder, someone whistling]

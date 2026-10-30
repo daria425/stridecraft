@@ -1,9 +1,9 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: Lost Trader
 tags: [myth]
 text: >-
-  A lost trader asks the way to {destination}. {strider} cannot say, but you point, and he
-  thanks you with {thanks}.
+  A trader with a mule loaded with amphorae asks the way to {destination}. {strider} cannot say,
+  but you point, and he thanks you with {thanks}.
 variables:
-  destination: [Thebes, Crete, the next harbour]
+  destination: [Corinth, Megara, Eleusis, Athens]
   thanks: [a bow, a fistful of olives, a story you will not remember]

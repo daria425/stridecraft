@@ -72,6 +72,7 @@ class Strider:
     name: str
     adopted_at: datetime
     waypoint_spacing_km: int  # km between waypoints on the journey, chosen at adoption
+    journey_seen_waypoint: int = 0  # the highest crossing the user has been shown
 
 
 @dataclass(frozen=True)

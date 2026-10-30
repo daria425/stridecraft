@@ -145,14 +145,24 @@ class LandmarkAheadOut(BaseModel):
     km_to_go: float
 
 
+class JourneySeenIn(BaseModel):
+    waypoint_number: int = Field(ge=0, description="The newest crossing the user has been shown.")
+
+
 class JourneyOut(BaseModel):
     intro: str
     total_km: float = Field(description="Distance of every run since adoption.")
     spacing_km: int
     leg_name: str = Field(description="The leg the next waypoint is in.")
+    leg_length: int = Field(description="Waypoints in that leg; the last one is its landmark.")
+    leg_waypoint: int = Field(description="Which waypoint of the leg is next, 1 for the first.")
     km_to_go: float = Field(description="Distance to the next waypoint.")
     landmark: LandmarkAheadOut = Field(description="The end of the current leg.")
     crossed: list[JourneyEventOut] = Field(description="Newest first.")
+    seen_waypoint: int = Field(
+        description="The highest waypoint number already shown to the user; anything above it is "
+        "new. Move it with `POST /me/journey/seen`."
+    )
 
     @classmethod
     def of(cls, progress: JourneyProgress) -> "JourneyOut":
@@ -161,7 +171,10 @@ class JourneyOut(BaseModel):
             total_km=progress.total_km,
             spacing_km=progress.spacing_km,
             leg_name=progress.leg_name,
+            leg_length=progress.leg_length,
+            leg_waypoint=progress.leg_waypoint,
             km_to_go=progress.km_to_go,
             landmark=LandmarkAheadOut(**vars(progress.landmark)),
             crossed=[JourneyEventOut.of(event) for event in progress.crossed],
+            seen_waypoint=progress.seen_waypoint,
         )

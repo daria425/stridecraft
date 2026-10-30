@@ -1,8 +1,9 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: Mountain Spring
 tags: [mountain]
 text: >-
-  A cold spring runs out of the rock. {strider} drinks, shakes off the dust, and the climb behind
-  feels shorter. The water tastes of {taste}.
+  A cold spring runs out of the rock. Ribbons hang from a branch above it, for the nymph who
+  keeps the water. {strider} drinks, shakes off the dust, and the climb behind feels shorter. The
+  water tastes of {taste}.
 variables:
-  taste: [iron, snow, honey]
+  taste: [iron, snow, wild thyme]

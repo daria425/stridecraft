@@ -2,6 +2,7 @@ import { Banner } from '../../components/Banner'
 import { GiltFrame } from '../../components/GiltFrame'
 import { Stage } from '../../components/Stage'
 import { StatList, type Stats } from '../../components/StatList'
+import { JourneyMenu } from '../journey/JourneyMenu'
 import '../../components/scene.css'
 import './dashboard.css'
 
@@ -26,6 +27,7 @@ export function DashboardView(props: DashboardViewProps) {
 
       <header className="dashboard__bar">
         <span>{props.trainer}</span>
+        <JourneyMenu />
         <button type="button" onClick={props.onLogout}>
           Log out
         </button>

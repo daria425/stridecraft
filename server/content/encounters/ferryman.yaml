@@ -1,8 +1,9 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: The Ferryman
 tags: [coast, sea]
 text: >-
-  A weathered ferryman is mending nets by his boat. He squints at the {breed} beside him, says
-  nothing, and points the way with {pointer}.
+  A weathered ferryman is mending nets beside a boat with a wide eye painted on its bow, to ward
+  off bad luck. He squints at the {breed} beside him, says nothing, and points the way with
+  {pointer}.
 variables:
   pointer: [a wooden oar, a crooked finger, a net needle]

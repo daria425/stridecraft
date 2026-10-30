@@ -1,7 +1,8 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: Oracle Whisper
 tags: [myth]
 text: >-
-  A voice from nowhere murmurs that {omen}. {strider} flicks an ear and keeps going.
+  A voice from nowhere murmurs one of the sayings carved at Delphi: "{maxim}." {strider} flicks
+  an ear and keeps going.
 variables:
-  omen: [the road is longer than it looks, someone is already waiting at its end, the gods are watching with interest]
+  maxim: [Know thyself, Nothing in excess, Surety brings ruin]

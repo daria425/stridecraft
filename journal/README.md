@@ -19,3 +19,4 @@
 | [0015](0015-journey-quests-and-tailored-challenges.md) | Journey carried by distance, authored quests, AI-tailored challenges | partly superseded by 0017 | 2026-10-20 |
 | [0016](0016-creature-renderer-and-independent-habitats.md) | React Three Fiber renderer with independent creature habitats | accepted | 2026-10-21 |
 | [0017](0017-endless-journey-from-encounter-pools.md) | Endless journey: authored legs rolled in turn, filled with random encounters | accepted | 2026-10-25 |
+| [0018](0018-journey-level-maps-and-arrival-banner.md) | A 3D voyage map, a once-only arrival banner, a dev endpoint to cross waypoints | accepted | 2026-10-27 |

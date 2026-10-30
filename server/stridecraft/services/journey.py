@@ -89,9 +89,12 @@ class JourneyProgress:
     total_km: float
     spacing_km: int
     leg_name: str  # the leg the next waypoint is in
+    leg_length: int  # waypoints in that leg, the last being its landmark
+    leg_waypoint: int  # which of them is next: 1 for the first
     km_to_go: float  # to the next waypoint
     landmark: LandmarkAhead  # the end of this leg
     crossed: list[JourneyEvent]  # newest first
+    seen_waypoint: int  # the highest crossing already shown to the user
 
 
 class JourneyService:
@@ -170,11 +173,14 @@ class JourneyService:
             total_km=total_km,
             spacing_km=strider.waypoint_spacing_km,
             leg_name=leg.name,
+            leg_length=leg.length,
+            leg_waypoint=stop.index,
             km_to_go=km_to_go,
             landmark=LandmarkAhead(
                 leg.landmark.name, km_to_go + waypoints_after_next * strider.waypoint_spacing_km
             ),
             crossed=crossed,
+            seen_waypoint=strider.journey_seen_waypoint,
         )
 
     def context(self, strider: Strider) -> dict[str, str]:

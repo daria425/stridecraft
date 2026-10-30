@@ -10,7 +10,7 @@ GET /auth/strava/login -> Strava -> GET /auth/strava/callback
    |- user created or fetched by Strava athlete id, tokens stored encrypted, cookie set
    '- redirect to the frontend
 GET /me -> strider?
-   |- yes -> dashboard
+   |- yes -> dashboard (/) or the voyage map (/voyage)
    '- null -> adoption page: GET /breeds, GET /names/random
                 POST /me/strider {breed, name}
                 |- create strider: adopted_at = now
@@ -31,6 +31,17 @@ Gains are computed once, the first time a run is seen, from the run itself (dist
 elevation, Race/Workout tag) and the stored runs before it (the previous 42 days for the Speed and
 Endurance baselines; run counts per week since adoption for the Consistency streak). The four
 numbers are saved in `run_gains` and never recomputed.
+
+## Journey: seeing a crossing
+
+`GET /me/journey` returns the crossings (newest first), the current leg (`leg_name`, `leg_length`,
+`leg_waypoint` = which stop is next) and `seen_waypoint`, the highest crossing already shown to the
+user (`striders.journey_seen_waypoint`). Anything above it is new: the dashboard and the voyage map
+show it as a banner, oldest first, and `POST /me/journey/seen` moves the mark forward when each is
+dismissed. The mark only moves forward and never past the newest crossing. The map keeps unseen
+stops unrevealed and the strider waits at the last one seen, then walks to the next when it is
+dismissed (journal/0018). With `DEV_TOOLS=1`, `POST /me/journey/advance` stores a made-up run with
+zero gains, just long enough to cross the next waypoint, so this can be tried without running.
 
 ## Stats
 

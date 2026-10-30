@@ -1,0 +1,8 @@
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
+name: The Herm
+tags: [wild, mountain, coast]
+text: >-
+  At a fork in the road stands a herm, a stone pillar with the bearded head of Hermes, who guards
+  travellers. Passers-by pile stones at its foot for luck. {strider} adds {stone}.
+variables:
+  stone: [a flat grey pebble, a chip of white marble, a shard of old pottery]

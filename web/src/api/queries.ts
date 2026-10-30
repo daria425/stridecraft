@@ -6,6 +6,8 @@ import type { components } from './schema'
 export type Me = components['schemas']['MeOut']
 export type Breed = components['schemas']['BreedOut']
 export type SyncStatus = components['schemas']['SyncStatusOut']
+export type Journey = components['schemas']['JourneyOut']
+export type JourneyEvent = components['schemas']['JourneyEventOut']
 
 /** `null` when nobody is logged in. */
 export function useMe() {
@@ -81,5 +83,29 @@ export function useStartSync() {
       unwrap(result)
     },
     onSettled: () => client.invalidateQueries({ queryKey: ['sync'] }),
+  })
+}
+
+export function useJourney() {
+  return useQuery({
+    queryKey: ['journey'],
+    queryFn: async () => unwrap(await api.GET('/me/journey')),
+  })
+}
+
+/** Tell the server the crossings up to `waypointNumber` have been shown, so they are not shown
+ * again on any device. The cache moves at once: the banner must not flash back while it saves. */
+export function useMarkJourneySeen() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (waypointNumber: number) =>
+      unwrap(await api.POST('/me/journey/seen', { body: { waypoint_number: waypointNumber } })),
+    onMutate: (waypointNumber) => {
+      client.setQueryData<Journey>(
+        ['journey'],
+        (journey) =>
+          journey && { ...journey, seen_waypoint: Math.max(journey.seen_waypoint, waypointNumber) },
+      )
+    },
   })
 }

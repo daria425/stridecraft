@@ -141,6 +141,27 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/me/journey/seen': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Record that the user has been shown crossings up to this waypoint
+     * @description Call it once the banner for a new crossing has been dismissed. It only moves forward, and
+     *     never past the newest crossing.
+     */
+    post: operations['mark_journey_seen']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/breeds': {
     parameters: {
       query?: never
@@ -230,6 +251,11 @@ export interface components {
        */
       message: string
     }
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components['schemas']['ValidationError'][]
+    }
     /** JourneyEventOut */
     JourneyEventOut: {
       /** Waypoint Number */
@@ -269,6 +295,16 @@ export interface components {
        */
       leg_name: string
       /**
+       * Leg Length
+       * @description Waypoints in that leg; the last one is its landmark.
+       */
+      leg_length: number
+      /**
+       * Leg Waypoint
+       * @description Which waypoint of the leg is next, 1 for the first.
+       */
+      leg_waypoint: number
+      /**
        * Km To Go
        * @description Distance to the next waypoint.
        */
@@ -280,6 +316,19 @@ export interface components {
        * @description Newest first.
        */
       crossed: components['schemas']['JourneyEventOut'][]
+      /**
+       * Seen Waypoint
+       * @description The highest waypoint number already shown to the user; anything above it is new. Move it with `POST /me/journey/seen`.
+       */
+      seen_waypoint: number
+    }
+    /** JourneySeenIn */
+    JourneySeenIn: {
+      /**
+       * Waypoint Number
+       * @description The newest crossing the user has been shown.
+       */
+      waypoint_number: number
     }
     /** LandmarkAheadOut */
     LandmarkAheadOut: {
@@ -368,6 +417,19 @@ export interface components {
        * @description Why the last import failed, in plain English.
        */
       error: string | null
+    }
+    /** ValidationError */
+    ValidationError: {
+      /** Location */
+      loc: (string | number)[]
+      /** Message */
+      msg: string
+      /** Error Type */
+      type: string
+      /** Input */
+      input?: unknown
+      /** Context */
+      ctx?: Record<string, never>
     }
   }
   responses: never
@@ -658,6 +720,55 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorOut']
+        }
+      }
+    }
+  }
+  mark_journey_seen: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['JourneySeenIn']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not logged in */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description No strider yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
         }
       }
     }

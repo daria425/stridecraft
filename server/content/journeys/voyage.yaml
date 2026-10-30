@@ -1,4 +1,3 @@
-# Placeholder text: Daria to rewrite.
 # Legs are regions: `length` waypoints, the last one being its landmark. The road starts in the
 # first leg; after each landmark the next leg is picked at random from the others, so it never ends.
 # `tags` pick which encounters can happen in a leg.
@@ -7,15 +6,14 @@ intro: >-
   At the edge of the known world, {strider} stands on the shore. Somewhere beyond the mountains
   Olympus waits. The road starts here.
 legs:
-  - id: tide_road
-    name: The Tide Road
+  - id: skirons_road
+    name: Skiron’s Road
     tags: [coast, sea, myth]
     length: 6
     landmark:
-      name: The Isle of the Sirens
+      name: The Isthmus of Corinth
       text: >-
-        The road ends at a causeway. Beyond it an island hums with a song {strider} cannot quite
-        ignore. Here the shore ends and the Far Road begins.
+        {strider} sees a narrow strip of land between two seas. The road bends inland, toward the mountains.
   - id: far_road
     name: The Far Road
     tags: [wild, mountain, myth]

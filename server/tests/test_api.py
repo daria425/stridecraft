@@ -317,3 +317,31 @@ def test_a_waypoint_spacing_out_of_range_is_a_plain_message(client, login, impor
     assert response.status_code == 422
     assert response.json()["code"] == "invalid_adoption"
     assert client.get("/me").json()["strider"] is None
+
+
+def test_advancing_the_journey_crosses_the_next_waypoint_without_moving_stats(dev_client, login):
+    log_in(dev_client, login)
+    assert dev_client.post("/me/journey/advance").json()["code"] == "no_strider"
+    adopt(dev_client)
+    stats_before = dev_client.get("/me").json()["strider"]["stats"]
+
+    crossed = dev_client.post("/me/journey/advance", params={"waypoints": 2}).json()
+
+    assert [event["waypoint_number"] for event in crossed] == [1, 2]
+    journey = dev_client.get("/me/journey").json()
+    assert [event["waypoint_number"] for event in journey["crossed"]] == [2, 1]
+    assert dev_client.get("/me").json()["strider"]["stats"] == stats_before
+
+
+def test_seen_only_moves_forward_and_never_past_the_newest_crossing(dev_client, login):
+    log_in(dev_client, login)
+    adopt(dev_client)
+    dev_client.post("/me/journey/advance", params={"waypoints": 3})
+    assert dev_client.get("/me/journey").json()["seen_waypoint"] == 0
+
+    assert dev_client.post("/me/journey/seen", json={"waypoint_number": 2}).status_code == 204
+    dev_client.post("/me/journey/seen", json={"waypoint_number": 1})
+    assert dev_client.get("/me/journey").json()["seen_waypoint"] == 2
+
+    dev_client.post("/me/journey/seen", json={"waypoint_number": 99})
+    assert dev_client.get("/me/journey").json()["seen_waypoint"] == 3

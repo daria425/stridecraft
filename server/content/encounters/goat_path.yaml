@@ -1,8 +1,8 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: Goat Path
 tags: [wild, mountain]
 text: >-
-  A narrow goat path climbs the hillside. {strider} follows it while {sound} echoes from
-  somewhere above.
+  A narrow goat path climbs the hillside, and {strider} follows it. Shepherds say the hills
+  belong to Pan, and from somewhere above comes {sound}.
 variables:
-  sound: [a bell, distant thunder, someone whistling]
+  sound: [the clank of a bell, a few notes on a reed pipe, a laugh that is not quite human]

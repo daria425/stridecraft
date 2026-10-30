@@ -1,8 +1,8 @@
-# Placeholder text: Daria to rewrite.
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
 name: Shepherd Fire
 tags: [wild]
 text: >-
   A shepherd's fire still smolders at the roadside. Someone left {gift} on a flat stone for
-  passing travellers.
+  passing travellers, because Zeus watches over guests and strangers.
 variables:
-  gift: [a heel of bread, a cup of goat milk, a handful of dried figs]
+  gift: [a heel of barley bread, a cup of goat milk, a handful of dried figs]

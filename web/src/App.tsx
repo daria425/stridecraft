@@ -4,6 +4,7 @@ import { AdoptPage } from './features/adopt/AdoptPage'
 import { Gate } from './features/auth/Gate'
 import { LoginPage } from './features/auth/LoginPage'
 import { DashboardPage } from './features/dashboard/DashboardPage'
+import { JourneyMapPage } from './features/journey/JourneyMapPage'
 
 const queryClient = new QueryClient()
 
@@ -20,6 +21,7 @@ export default function App() {
           </Route>
           <Route element={<Gate page="/" />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/voyage" element={<JourneyMapPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -182,6 +182,11 @@ Label above value, hairline separators in faint gold. Desktop adds a 3rem diamon
 ### Sigil Ring
 Engraved circle set with a hexagram and four cardinal diamonds; tick ring rotates once per 240s, strokes draw in over 1.8s. Both stop under `prefers-reduced-motion`. Decorative, hidden from assistive tech.
 
+### Journey Menu and Arrival
+- **Menu:** a row of quiet square links (Strider, Voyage) in the top bar, label size, 0.12em tracking, faint gold border; the current page is gold-bordered. One scrolling row on phone.
+- **Arrival:** a Banner under the top bar over a dimmed scene, with a gold eyebrow ("Waypoint 4", "Landmark reached") and a primary button below. Text is ivory, not muted, since it is the point of the screen.
+- **Voyage map:** a full-screen 3D scene, its own world (not Gilt Grimoire), with the HUD and detail plates floating above it as ordinary gilt frames. Stop labels are small night plates with a gold hairline; blue means a stop that is next or just reached.
+
 ### Inputs
 Void-indigo fill, 1px gold-dim border, 1.25rem Alegreya text in ivory, square; focus keeps the gold outline flush (offset 0). Labels are Forum uppercase muted. Errors are vermilion text with `role="alert"`.
 

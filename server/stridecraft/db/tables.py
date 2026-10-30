@@ -49,6 +49,7 @@ class StriderRow(Base):
     name: Mapped[str]
     adopted_at: Mapped[datetime] = mapped_column(UtcDateTime)
     waypoint_spacing_km: Mapped[int]  # the user's own pace along the journey (ADR-0017)
+    journey_seen_waypoint: Mapped[int] = mapped_column(default=0)  # highest crossing shown to them
 
 
 class RunRow(Base):

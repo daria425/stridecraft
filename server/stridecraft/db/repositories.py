@@ -130,8 +130,19 @@ class StriderRepository:
     @staticmethod
     def to_strider(row: StriderRow) -> Strider:
         return Strider(
-            row.id, row.user_id, row.breed, row.name, row.adopted_at, row.waypoint_spacing_km
+            row.id,
+            row.user_id,
+            row.breed,
+            row.name,
+            row.adopted_at,
+            row.waypoint_spacing_km,
+            row.journey_seen_waypoint,
         )
+
+    def mark_journey_seen(self, user_id: int, waypoint_number: int) -> None:
+        """Remember that crossings up to this one were shown. It only ever moves forward."""
+        row = self.session.scalar(select(StriderRow).filter_by(user_id=user_id))
+        row.journey_seen_waypoint = max(row.journey_seen_waypoint, waypoint_number)
 
 
 class TokenRepository:

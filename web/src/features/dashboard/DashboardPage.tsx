@@ -1,4 +1,5 @@
 import { useLogout, useMe, useBreeds, type SyncStatus } from '../../api/queries'
+import { JourneyArrivals } from '../journey/JourneyArrivals'
 import { DashboardView } from './DashboardView'
 import { useAutoSync } from './useAutoSync'
 
@@ -24,17 +25,20 @@ export function DashboardPage() {
   const breed = breeds?.find((b) => b.id === strider.breed)
 
   return (
-    <DashboardView
-      trainer={me.firstname ?? me.username}
-      striderName={strider.name}
-      breedName={breed?.name ?? strider.breed}
-      breedId={strider.breed}
-      adoptedOn={new Date(strider.adopted_at).toLocaleDateString()}
-      modelUrl={breed?.model_url ?? null}
-      stats={strider.stats}
-      syncNote={describeSync(sync.data)}
-      syncFailed={sync.data?.state === 'failed'}
-      onLogout={() => logout.mutate()}
-    />
+    <>
+      <DashboardView
+        trainer={me.firstname ?? me.username}
+        striderName={strider.name}
+        breedName={breed?.name ?? strider.breed}
+        breedId={strider.breed}
+        adoptedOn={new Date(strider.adopted_at).toLocaleDateString()}
+        modelUrl={breed?.model_url ?? null}
+        stats={strider.stats}
+        syncNote={describeSync(sync.data)}
+        syncFailed={sync.data?.state === 'failed'}
+        onLogout={() => logout.mutate()}
+      />
+      <JourneyArrivals />
+    </>
   )
 }

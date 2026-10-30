@@ -1,0 +1,9 @@
+# Draft text grounded in Greek myth and daily life, for Daria to edit.
+name: The Skironian Rocks
+tags: [coast, myth]
+text: >-
+  The road narrows along a cliff high above the sea. They say the bandit Skiron once made
+  travellers wash his feet here, then kicked them over the edge to a giant turtle below, until
+  Theseus did the same to him. {strider} keeps to {side} and does not look down.
+variables:
+  side: [the inner edge, the middle of the path, the sunny side]

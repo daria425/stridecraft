@@ -1,0 +1,234 @@
+/* The menu between the strider's home and the level maps. */
+.journey-menu {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow-x: auto; /* one scrolling row on a phone */
+  scrollbar-width: none;
+}
+.journey-menu a {
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-muted);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--color-gold-faint);
+  background: rgb(10 11 32 / 0.6);
+  transition:
+    background-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+.journey-menu a:hover {
+  color: var(--color-bg);
+  background: var(--color-gold);
+}
+.journey-menu a[aria-current='page'] {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+@media (min-width: 40rem) {
+  .journey-menu {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+.dashboard__bar .journey-menu {
+  order: 3;
+  flex-basis: 100%;
+}
+@media (min-width: 62rem) {
+  .dashboard__bar .journey-menu {
+    order: 0;
+    flex-basis: auto;
+  }
+}
+
+/* A map page: the 3D road fills the screen; the bar, status and detail float over it. */
+.journey-map {
+  grid-template-areas: 'bar' 'hud' '.' 'detail';
+  grid-template-rows: auto auto 1fr auto;
+}
+.journey-map__bar {
+  grid-area: bar;
+}
+.journey-map__hud {
+  grid-area: hud;
+  justify-self: start;
+  width: min(100%, 22rem);
+}
+.journey-map__detail {
+  grid-area: detail;
+  justify-self: center;
+  width: min(100%, 36rem);
+  pointer-events: none;
+}
+.journey-map__detail > * {
+  pointer-events: auto;
+}
+.journey-map__note {
+  position: absolute;
+  inset: 50% 0 auto;
+  margin: 0;
+  text-align: center;
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+.journey-hud {
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+}
+.journey-hud h1 {
+  font-size: 1.5rem;
+  letter-spacing: 0.06em;
+}
+.journey-hud p {
+  margin: 0;
+}
+.journey-hud__leg {
+  color: var(--color-muted);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.journey-hud__progress {
+  display: flex;
+  gap: var(--space-2);
+}
+.journey-hud__pip {
+  flex: 1;
+  height: 0.4rem;
+  background: var(--color-gold-faint);
+}
+.journey-hud__pip--done {
+  background: var(--color-gold);
+}
+.journey-hud__pip--arriving,
+.journey-hud__pip--next {
+  background: #9fe8ff;
+}
+.journey-hud__km {
+  font-size: var(--text-label);
+  color: var(--color-muted);
+}
+.journey-hud__km strong {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+.journey-detail {
+  padding: var(--space-3);
+}
+.journey-detail h2 {
+  font-size: 1.35rem;
+  margin-bottom: var(--space-1);
+}
+.journey-detail p {
+  margin: 0;
+  color: var(--color-muted);
+}
+.journey-detail__hint {
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-label);
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-shadow: 0 1px 6px #000;
+}
+@media (min-width: 62rem) {
+  .journey-map {
+    padding: var(--space-4);
+  }
+}
+
+/* Labels floating over stops in the 3D scene. */
+.map-label {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--color-text);
+  background: rgb(10 11 32 / 0.82);
+  border: 1px solid var(--color-gold-faint);
+}
+.map-label--next,
+.map-label--arriving {
+  color: #9fe8ff;
+  border-color: #9fe8ff;
+}
+.map-label--ahead {
+  color: var(--color-muted);
+}
+.map-label--landmark {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+/* The banner for a newly reached waypoint, over a dimmed scene. */
+.arrival-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: radial-gradient(ellipse at 50% 30%, rgb(7 8 24 / 0.35), rgb(7 8 24 / 0.7));
+  animation: scrim-in 0.5s ease-out both;
+}
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+.arrival {
+  position: fixed;
+  inset: 7rem var(--space-3) auto;
+  z-index: 11;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  margin-inline: auto;
+  max-width: 40rem;
+  animation: arrival-in 0.6s var(--ease-out) both;
+}
+.arrival__eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  text-shadow: 0 1px 8px #000;
+}
+.arrival .banner {
+  width: 100%;
+}
+.arrival .banner h2 {
+  font-size: clamp(1.4rem, 1.1rem + 1.6vw, 2.2rem);
+}
+.arrival .banner p {
+  color: var(--color-text);
+  font-size: var(--text-body);
+  line-height: 1.55;
+}
+@media (min-width: 62rem) {
+  .arrival {
+    inset-block-start: 5.5rem;
+  }
+}
+@keyframes arrival-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1.5rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival,
+  .arrival-scrim {
+    animation: none;
+  }
+}

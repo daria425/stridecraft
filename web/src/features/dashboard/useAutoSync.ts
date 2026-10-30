@@ -34,12 +34,13 @@ export function useAutoSync() {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [check])
 
-  // When an import finishes, the strider's stats have changed.
+  // When an import finishes, the strider's stats and journey have changed.
   const state = status.data?.state
   const previous = useRef(state)
   useEffect(() => {
     if (previous.current === 'running' && state !== 'running') {
       void client.invalidateQueries({ queryKey: ['me'] })
+      void client.invalidateQueries({ queryKey: ['journey'] }) // new runs may have crossed waypoints
     }
     previous.current = state
   }, [state, client])

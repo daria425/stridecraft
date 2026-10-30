@@ -7,7 +7,7 @@ from dataclasses import asdict
 from datetime import datetime
 
 from cryptography.fernet import Fernet
-from sqlalchemy import delete, func, select
+from sqlalchemy import case, delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -20,7 +20,7 @@ from stridecraft.db.tables import (
     UserRow,
 )
 from stridecraft.errors import AlreadyAdoptedError
-from stridecraft.models import BestEffort, JourneyEvent, Run, Strider, User
+from stridecraft.models import BestEffort, JourneyEvent, Run, RunTotals, Strider, User
 from stridecraft.stats.stats_calculator import RunGains
 from stridecraft.strava.auth import Tokens
 
@@ -226,6 +226,20 @@ class RunRepository:
             .where(RunRow.user_id == user_id)
         )
         return self.session.scalar(query)
+
+    def totals_since_adoption(self, user_id: int) -> RunTotals:
+        """Totals over the runs that have gains, i.e. every run after adoption."""
+        query = (
+            select(
+                func.count(RunRow.id),
+                func.coalesce(func.sum(RunRow.distance_m), 0.0),
+                func.coalesce(func.sum(RunRow.elevation_gain_m), 0.0),
+                func.coalesce(func.sum(case((RunRow.is_training, 1), else_=0)), 0),
+            )
+            .join(RunGainRow, RunGainRow.run_id == RunRow.id)
+            .where(RunRow.user_id == user_id)
+        )
+        return RunTotals(*self.session.execute(query).one())
 
     def delete_all(self, user_id: int) -> None:
         """Every stored run of the user, with its gains."""

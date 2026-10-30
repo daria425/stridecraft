@@ -15,6 +15,7 @@ def list_breeds(content: GameContent, state: State) -> list[BreedOut]:
             name=b.name,
             description=b.description,
             model_url=b.model and state.config.asset_url(b.model),
+            icon_url=b.icon and state.config.asset_url(b.icon),
         )
         for b in content.breeds.values()
     ]

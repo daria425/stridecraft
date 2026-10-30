@@ -85,7 +85,6 @@ button:disabled {
 button.primary,
 a.primary {
   display: inline-block;
-  font-family: var(--font-display);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   background: var(--color-gold);

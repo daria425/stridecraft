@@ -37,7 +37,6 @@
 }
 .stat-plaque__label {
   grid-area: label;
-  font-family: var(--font-display);
   font-size: var(--text-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -46,7 +45,6 @@
 .stat-plaque__value {
   grid-area: value;
   margin: 0;
-  font-family: var(--font-display);
   font-size: var(--text-figure);
   line-height: 1.1;
   color: var(--color-text);

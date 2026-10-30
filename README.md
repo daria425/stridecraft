@@ -1,11 +1,10 @@
-# Stridecraft: A Greek Mythology inspired Running RPG
+# Stridecraft: Gamifying advanced running
+
+<img src="images/hero.png">
 
 **Your effort becomes their power.**
 
-Stridecraft turns your real runs into a creature-collecting RPG, in the spirit of Pokemon,
-Palworld, WoW and Ark. You adopt a strider at the start, a mythic creature with a breed and a name. It is not a mirror
-of you: like a caught Pokemon, it has its own powers and grows stronger because you train
-together.
+Adopt a mythical creature at the start and embark on a mythical journey together. Stridecraft turns your real runs and training progression into a voyage across ancient Greece. Raise your strider, unlock skills and take down villains!
 
 ## Philosophy
 
@@ -16,8 +15,5 @@ together.
   just "you ran today". Easy runs still help, and most of your runs should be easy.
 - **Progress you keep.** Skills, quests and trophies are permanent. Your strider's stats reflect how
   you train together.
-- **Win with preparation.** Boss fights are auto-battles you watch; your training and loadout
+- **Win with preparation.** Your striders stats, unlocked skills and loadout acquired through training
   decide the outcome.
-
-Design decisions live in [`journal/`](journal/README.md); working conventions in
-[`CLAUDE.md`](CLAUDE.md).

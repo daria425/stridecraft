@@ -16,7 +16,6 @@
 .adopt__form label {
   display: grid;
   gap: var(--space-1);
-  font-family: var(--font-display);
   font-size: var(--text-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;

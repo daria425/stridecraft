@@ -51,6 +51,16 @@ class Run:
 
 
 @dataclass(frozen=True)
+class RunTotals:
+    """What the strider has done since adoption: only runs that were counted, never baseline."""
+
+    runs: int
+    distance_m: float
+    elevation_gain_m: float
+    training_runs: int
+
+
+@dataclass(frozen=True)
 class User:
     """Identity and a small cache of the Strava profile; everything else stays in Strava."""
 

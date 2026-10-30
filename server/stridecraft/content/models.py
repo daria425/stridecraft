@@ -27,6 +27,7 @@ class Breed(ContentModel):
     name: str
     description: str
     model: str | None = None  # path to the 3D model under assets/ (repo root), once it exists
+    icon: str | None = None  # path to a still image of it under assets/, for cards and profiles
 
 
 class Landmark(Strict):

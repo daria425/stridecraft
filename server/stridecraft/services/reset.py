@@ -11,8 +11,9 @@ from stridecraft.models import User
 
 
 class StriderReset:
-    """Dev tool: take a user back to before adoption. The user and their Strava login stay; the
-    strider, every stored run and the sync time go, so the next adoption imports from scratch."""
+    """Take a user back to before adoption. The user and their Strava login stay; the strider
+    (with its waypoint spacing), the journey, every stored run and the sync time go, so the next
+    adoption imports from scratch."""
 
     def __init__(self, session: Session):
         self.session = session

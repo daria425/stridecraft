@@ -1,3 +1,5 @@
+import { User } from 'lucide-react'
+import { Link } from 'react-router'
 import { Banner } from '../../components/Banner'
 import { GiltFrame } from '../../components/GiltFrame'
 import { Stage } from '../../components/Stage'
@@ -28,9 +30,14 @@ export function DashboardView(props: DashboardViewProps) {
       <header className="dashboard__bar">
         <span>{props.trainer}</span>
         <JourneyMenu />
-        <button type="button" onClick={props.onLogout}>
-          Log out
-        </button>
+        <div className="dashboard__actions">
+          <Link to="/profile" aria-label="View profile" title="View profile">
+            <User size={18} aria-hidden="true" />
+          </Link>
+          <button type="button" onClick={props.onLogout}>
+            Log out
+          </button>
+        </div>
       </header>
 
       <section className="dashboard__banner" aria-labelledby="strider-name">

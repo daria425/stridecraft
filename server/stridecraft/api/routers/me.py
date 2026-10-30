@@ -1,14 +1,15 @@
 import logging
 
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Response
 
 from stridecraft.api.deps import CurrentUser, DbSession, GameContent, State
 from stridecraft.api.errors import NEEDS_LOGIN, NO_STRIDER
-from stridecraft.api.schemas import AdoptIn, MeOut, StriderOut, SyncStatusOut
+from stridecraft.api.schemas import AdoptIn, MeOut, ProfileOut, StriderOut, SyncStatusOut
 from stridecraft.db.repositories import RunRepository, StriderRepository, UserRepository
 from stridecraft.errors import NoStriderError
 from stridecraft.models import Strider, User
 from stridecraft.services.adoption import AdoptionService
+from stridecraft.services.reset import StriderReset
 from stridecraft.stats.stats_calculator import Stats
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,33 @@ def adopt(
     state.jobs.start(user.id)
     background.add_task(state.jobs.run, user.id, lambda: state.importer.import_for(user.id))
     return strider_out(session, user, strider)
+
+
+@router.get("/profile", summary="Totals since adoption for the profile page", responses=NO_STRIDER)
+def get_profile(user: CurrentUser, session: DbSession) -> ProfileOut:
+    """Only runs counted after adoption, so a fresh strider starts at zero."""
+    if StriderRepository(session).get_for_user(user.id) is None:
+        raise NoStriderError("Adopt a strider first")
+    return ProfileOut.of(RunRepository(session).totals_since_adoption(user.id))
+
+
+@router.delete(
+    "/strider",
+    status_code=204,
+    summary="Reset the profile: remove the strider and start onboarding over",
+    description=(
+        "Deletes the strider, its journey, all stored runs and the sync time. The user stays "
+        "logged in with their Strava login, so the next `GET /me` has `strider: null` and the "
+        "frontend sends them to adoption. Cannot be undone."
+    ),
+    responses={**NO_STRIDER, 409: {"description": "An import is running"}},
+)
+def reset_profile(user: CurrentUser, session: DbSession, state: State) -> Response:
+    state.jobs.forget(user.id)
+    StriderReset(session).reset(user)
+    session.commit()
+    logger.info("User %s reset their profile: strider, journey and runs deleted", user.id)
+    return Response(status_code=204)
 
 
 @router.get("/sync", summary="How the Strava import is going")

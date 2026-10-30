@@ -8,6 +8,7 @@ export type Breed = components['schemas']['BreedOut']
 export type SyncStatus = components['schemas']['SyncStatusOut']
 export type Journey = components['schemas']['JourneyOut']
 export type JourneyEvent = components['schemas']['JourneyEventOut']
+export type Profile = components['schemas']['ProfileOut']
 
 /** `null` when nobody is logged in. */
 export function useMe() {
@@ -106,6 +107,27 @@ export function useMarkJourneySeen() {
         (journey) =>
           journey && { ...journey, seen_waypoint: Math.max(journey.seen_waypoint, waypointNumber) },
       )
+    },
+  })
+}
+
+export function useProfile() {
+  return useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => unwrap(await api.GET('/me/profile')),
+  })
+}
+
+/** Wipe the strider, journey and runs. Afterwards `/me` has no strider, and the gate sends the
+ * user to adoption: nothing else needs wiring. */
+export function useResetProfile() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async () => unwrap(await api.DELETE('/me/strider')),
+    onSuccess: () => {
+      // Drop what belonged to the old strider so nothing stale shows under the next one.
+      for (const key of ['profile', 'journey', 'sync']) client.removeQueries({ queryKey: [key] })
+      return client.invalidateQueries({ queryKey: ['me'] })
     },
   })
 }

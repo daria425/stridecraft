@@ -20,3 +20,4 @@
 | [0016](0016-creature-renderer-and-independent-habitats.md) | React Three Fiber renderer with independent creature habitats | accepted | 2026-10-21 |
 | [0017](0017-endless-journey-from-encounter-pools.md) | Endless journey: authored legs rolled in turn, filled with random encounters | accepted | 2026-10-25 |
 | [0018](0018-journey-level-maps-and-arrival-banner.md) | A 3D voyage map, a once-only arrival banner, a dev endpoint to cross waypoints | accepted | 2026-10-27 |
+| [0019](0019-profile-page-and-player-reset.md) | A profile page; resetting a profile is a real feature, not a dev tool | accepted | 2026-10-30 |

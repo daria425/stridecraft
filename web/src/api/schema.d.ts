@@ -96,6 +96,30 @@ export interface paths {
      * @description One per user, once. The adoption time is now: only runs after it add to stats. This also starts importing the user's Strava runs in the background; follow it with `GET /me/sync`.
      */
     post: operations['adopt']
+    /**
+     * Reset the profile: remove the strider and start onboarding over
+     * @description Deletes the strider, its journey, all stored runs and the sync time. The user stays logged in with their Strava login, so the next `GET /me` has `strider: null` and the frontend sends them to adoption. Cannot be undone.
+     */
+    delete: operations['reset_profile']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/me/profile': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Totals since adoption for the profile page
+     * @description Only runs counted after adoption, so a fresh strider starts at zero.
+     */
+    get: operations['get_profile']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -199,6 +223,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/me/journey/advance': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Dev: cross the next waypoint(s) without running
+     * @description Stores a made-up run of exactly the distance to the next waypoint (no stat gains) and records the crossing like a sync would. Reload the page to see it as a new arrival.
+     */
+    post: operations['advance_journey']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
@@ -237,6 +281,11 @@ export interface components {
        * @description 3D model URL, `null` if not made yet.
        */
       model_url: string | null
+      /**
+       * Icon Url
+       * @description Still image URL for cards, `null` if not made yet.
+       */
+      icon_url: string | null
     }
     /** ErrorOut */
     ErrorOut: {
@@ -354,6 +403,29 @@ export interface components {
     NameOut: {
       /** Name */
       name: string
+    }
+    /** ProfileOut */
+    ProfileOut: {
+      /**
+       * Runs
+       * @description Runs counted since adoption; earlier ones are baseline only.
+       */
+      runs: number
+      /**
+       * Total Km
+       * @description Voyage distance: runs counted since adoption.
+       */
+      total_km: number
+      /**
+       * Elevation Gain M
+       * @description Elevation gain, same runs.
+       */
+      elevation_gain_m: number
+      /**
+       * Training Runs
+       * @description Of those runs, how many Strava tagged Race or Workout.
+       */
+      training_runs: number
     }
     /** StatsOut */
     StatsOut: {
@@ -612,6 +684,87 @@ export interface operations {
       }
     }
   }
+  reset_profile: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not logged in */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description No strider yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description An import is running */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  get_profile: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ProfileOut']
+        }
+      }
+      /** @description Not logged in */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description No strider yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+    }
+  }
   get_sync: {
     parameters: {
       query?: never
@@ -809,6 +962,55 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['NameOut']
+        }
+      }
+    }
+  }
+  advance_journey: {
+    parameters: {
+      query?: {
+        waypoints?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['JourneyEventOut'][]
+        }
+      }
+      /** @description Not logged in */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description No strider yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
         }
       }
     }

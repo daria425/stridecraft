@@ -10,7 +10,9 @@ from stridecraft.api.app import create_app
 from stridecraft.config import AppConfig, StravaConfig
 from stridecraft.content.models import Breed
 from stridecraft.db.database import IN_MEMORY_URL, Database
+from stridecraft.db.repositories import RunRepository
 from stridecraft.errors import NotAuthorizedError
+from stridecraft.models import Run
 from stridecraft.strava.auth import Tokens
 from stridecraft.strava.client import RunListing
 
@@ -213,12 +215,6 @@ def test_syncing_needs_a_strider_and_cannot_overlap(app, client, login, importer
     assert response.json()["code"] == "sync_in_progress"
 
 
-def test_starting_over_is_a_dev_tool_that_is_off_by_default(client, login, importer):
-    log_in(client, login)
-    adopt(client)
-    assert client.delete("/me/strider").status_code == 405  # the route is not registered
-
-
 @pytest.fixture
 def dev_client(login):
     app = build_app(login, dev_tools=True)
@@ -228,27 +224,61 @@ def dev_client(login):
         yield client
 
 
-def test_starting_over_removes_the_strider_and_runs_but_keeps_the_login(dev_client, login):
+def test_resetting_removes_the_strider_journey_and_runs_but_keeps_the_login(dev_client, login):
     log_in(dev_client, login)
     assert dev_client.delete("/me/strider").json()["code"] == "no_strider"
 
     adopt(dev_client)
+    dev_client.post("/me/journey/advance")
+    assert dev_client.get("/me/journey").json()["crossed"]
     assert dev_client.delete("/me/strider").status_code == 204
     me = dev_client.get("/me")
     assert me.status_code == 200
     assert me.json()["strider"] is None
     assert dev_client.get("/me/sync").json()["last_synced_at"] is None
+    assert dev_client.get("/me/profile").json()["code"] == "no_strider"
 
     assert adopt(dev_client, name="Again").status_code == 201
     assert dev_client.get("/me/sync").json()["last_result"]["new_runs"] == 1
+    assert dev_client.get("/me/journey").json()["crossed"] == []  # the old crossings are gone
 
 
-def test_starting_over_waits_for_a_running_import(dev_client, login):
+def test_resetting_waits_for_a_running_import(dev_client, login):
     log_in(dev_client, login)
     adopt(dev_client)
     dev_client.app_state.jobs.start(dev_client.get("/me").json()["id"])
     assert dev_client.delete("/me/strider").status_code == 409
     assert dev_client.get("/me").json()["strider"] is not None
+
+
+def test_the_profile_counts_only_runs_since_adoption(client, login, importer, app):
+    log_in(client, login)
+    assert client.get("/me/profile").json()["code"] == "no_strider"
+    adopt(client)
+    state = app.state.stridecraft
+    with state.database.session() as session:
+        RunRepository(session).add(
+            Run(
+                user_id=client.get("/me").json()["id"],
+                source="strava",
+                source_id="before",
+                start_time=datetime(2020, 1, 1, tzinfo=UTC),
+                distance_m=50000.0,
+                moving_time_s=1,
+                elevation_gain_m=900.0,
+                is_training=True,
+            ),
+            None,  # a baseline run: no gains
+            datetime.now(UTC),
+        )
+        session.commit()
+    # Adoption already imported the fake's one run: 10 km, 100 m, after adoption.
+    assert client.get("/me/profile").json() == {
+        "runs": 1,
+        "total_km": 10.0,
+        "elevation_gain_m": 100.0,
+        "training_runs": 0,
+    }
 
 
 def test_two_users_never_see_each_others_striders(client, login, importer):
@@ -272,12 +302,18 @@ def test_breeds_and_a_suggested_name_are_public(client):
 def test_breed_model_urls_come_from_the_asset_base(app, client):
     breeds = app.state.stridecraft.content.breeds
     breeds["modelled"] = Breed(
-        id="modelled", name="M", description="d", model="breeds/modelled.glb"
+        id="modelled",
+        name="M",
+        description="d",
+        model="breeds/modelled.glb",
+        icon="breeds/modelled.png",
     )
     breeds["unmodelled"] = Breed(id="unmodelled", name="U", description="d")
     breeds = {b["id"]: b for b in client.get("/breeds").json()}
     assert breeds["unmodelled"]["model_url"] is None
     assert breeds["modelled"]["model_url"] == "http://api.test/assets/breeds/modelled.glb"
+    assert breeds["modelled"]["icon_url"] == "http://api.test/assets/breeds/modelled.png"
+    assert breeds["unmodelled"]["icon_url"] is None
 
 
 def test_the_openapi_spec_builds_with_clean_operation_ids(app):

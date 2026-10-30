@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from stridecraft.models import JourneyEvent, Strider, User
+from stridecraft.models import JourneyEvent, RunTotals, Strider, User
 from stridecraft.services.journey import JourneyProgress
 from stridecraft.services.sync_jobs import SyncState, SyncStatus
 from stridecraft.stats.stats_calculator import Stats
@@ -41,6 +41,22 @@ class StriderOut(BaseModel):
             adopted_at=strider.adopted_at,
             waypoint_spacing_km=strider.waypoint_spacing_km,
             stats=StatsOut.of(stats),
+        )
+
+
+class ProfileOut(BaseModel):
+    runs: int = Field(description="Runs counted since adoption; earlier ones are baseline only.")
+    total_km: float = Field(description="Voyage distance: runs counted since adoption.")
+    elevation_gain_m: float = Field(description="Elevation gain, same runs.")
+    training_runs: int = Field(description="Of those runs, how many Strava tagged Race or Workout.")
+
+    @classmethod
+    def of(cls, totals: RunTotals) -> "ProfileOut":
+        return cls(
+            runs=totals.runs,
+            total_km=totals.distance_m / 1000,
+            elevation_gain_m=totals.elevation_gain_m,
+            training_runs=totals.training_runs,
         )
 
 
@@ -90,6 +106,7 @@ class BreedOut(BaseModel):
     name: str
     description: str
     model_url: str | None = Field(description="3D model URL, `null` if not made yet.")
+    icon_url: str | None = Field(description="Still image URL for cards, `null` if not made yet.")
 
 
 class NameOut(BaseModel):
